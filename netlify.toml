@@ -1,0 +1,3 @@
+# Si conectas este repositorio a Netlify, publica solo la carpeta de la demonlist.
+[build]
+  publish = "netlify-demonlist"
