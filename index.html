@@ -177,7 +177,23 @@ td .c{color:var(--blue);font-weight:700}td .m{color:var(--red);font-weight:700}
 .filters button[aria-pressed=true]{background:var(--gold);color:#000}
 .jgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:22px}
 .joker{position:relative;background:var(--panel);border:2px solid #000;border-radius:14px;padding:18px;display:grid;gap:12px;box-shadow:0 5px 0 #000;transform:perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .18s ease-out}
-.joker .art{height:120px;border-radius:10px;border:2px solid #000;display:grid;place-items:center;font:700 3.2rem var(--display);color:#fff;text-shadow:3px 3px 0 #000;background:repeating-linear-gradient(135deg,var(--a) 0 12px,var(--b) 12px 24px)}
+.joker .art{height:150px;border-radius:10px;border:2px solid #000;display:grid;place-items:center;overflow:hidden;background:repeating-linear-gradient(135deg,var(--a) 0 12px,var(--b) 12px 24px)}
+.spr{height:100%;aspect-ratio:1;image-rendering:pixelated;display:block}
+.joker .art .spr{height:92%;filter:drop-shadow(4px 4px 0 rgba(0,0,0,.45))}
+.plc{display:flex;align-items:center;gap:10px}
+.plc .spr{height:30px;width:30px;flex:none}
+.stage{position:relative;padding-top:clamp(84px,15vw,130px)}
+.stage .fan{position:relative;z-index:1}
+.card.jk{--w:clamp(86px,17vw,128px);position:absolute;z-index:0;left:2%;top:0;--rot:-9deg;background:var(--card);padding:.5em}
+.card.jk .jart{position:absolute;inset:.5em .5em 2.2em;border:.1em solid #000;border-radius:.4em;display:grid;place-items:center;background:repeating-linear-gradient(135deg,#ff6a62 0 .9em,#d1453d .9em 1.8em)}
+.card.jk .jart .spr{height:92%}
+.card.jk .jtag{position:absolute;left:0;right:0;bottom:.3em;text-align:center;font-size:1.05em;letter-spacing:.1em}
+.card.jk .jbadge{position:absolute;right:-.6em;top:-1.1em;font:700 .95em var(--mono);color:#fff;background:var(--red);border:2px solid #000;border-radius:.4em;padding:.05em .45em;transform:rotate(8deg)}
+.decks{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:22px}
+.deck{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;background:var(--panel);border:2px solid #000;border-radius:14px;padding:16px;box-shadow:0 5px 0 #000}
+.deck .spr{height:112px;aspect-ratio:28/40;filter:drop-shadow(3px 4px 0 rgba(0,0,0,.5));transform:rotate(-4deg)}
+.deck h3{font-size:1.15rem;margin-bottom:4px}
+.deck p{font-size:.88rem;color:var(--ink-dim);line-height:1.45}
 .joker h3{font-size:1.3rem}
 .joker p{font-size:.92rem;color:var(--ink-dim)}
 .joker .eff{font:700 .95rem var(--mono);color:var(--ink)}
@@ -210,6 +226,7 @@ footer .wrap{display:grid;gap:8px}
         <li><a href="#simulador">Simulador</a></li>
         <li><a href="#manos">Manos</a></li>
         <li><a href="#jokers">Jokers</a></li>
+        <li><a href="#mazos">Mazos</a></li>
         <li><a href="#datos">Datos</a></li>
       </ul>
     </nav>
@@ -235,7 +252,8 @@ footer .wrap{display:grid;gap:8px}
         <li><b>8</b><span>Stakes</span></li>
       </ul>
     </div>
-    <div aria-label="Ejemplo de mano puntuando">
+    <div class="stage" aria-label="Ejemplo de mano puntuando">
+      <div class="card jk" id="heroJoker" role="img" aria-label="Carta Joker"><span class="jbadge">+4 Mult</span><div class="jart" id="heroJokerArt"></div><span class="jtag">JOKER</span></div>
       <div class="fan" id="fan"></div>
       <div class="score-board">
         <div class="hname">Escalera de color <small>nv. 1</small></div>
@@ -369,7 +387,18 @@ footer .wrap{display:grid;gap:8px}
   </div>
 </section>
 
-<section class="sec" id="datos">
+<section class="sec" id="mazos">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Mazos</p>
+      <h2>Cada mazo cambia las reglas desde el inicio</h2>
+      <p>Elegir mazo es la primera decisión de la partida. Algunos te dan una mano más, otros dinero o una combinación rara de cartas. Ocho de los quince.</p>
+    </div>
+    <div class="decks" id="decks"></div>
+  </div>
+</section>
+
+<section class="sec simbg" id="datos">
   <div class="wrap">
     <div class="sec-head">
       <p class="eyebrow">Ficha y consejos</p>
@@ -456,10 +485,132 @@ footer .wrap{display:grid;gap:8px}
       h+='<tr><td><b>'+x.n+'</b>'+(x.s?'<span class="secret">SECRETA</span>':'')+'</td>'
         +'<td class="n"><span class="c">'+x.c+'</span></td><td class="n"><span class="m">'+x.m+'</span></td>'
         +'<td class="n">'+fmt(x.c*x.m)+'<span class="mini"><i style="width:'+Math.max(1,x.c*x.m/max*100)+'%"></i></span></td>'
-        +'<td>'+x.p+'</td><td class="n"><span class="c">+'+x.lc+'</span> / <span class="m">+'+x.lm+'</span></td></tr>';
+        +'<td><span class="plc" data-pl="'+x.p+'"><b>'+x.p+'</b></span></td><td class="n"><span class="c">+'+x.lc+'</span> / <span class="m">+'+x.lm+'</span></td></tr>';
     });
     $('handRows').innerHTML=h;
   })();
+  /* planetas se pintan tras definir los sprites */
+
+
+  /* ---------- pixel art ---------- */
+  var OL='#1a1020',GOLD='#f5be4f';
+  function mk(w,h){var c=document.createElement('canvas');c.width=w;c.height=h;c.className='spr';return c;}
+  function dot(g,x,y,c){g.fillStyle=c;g.fillRect(Math.floor(x),Math.floor(y),1,1);}
+  function rect(g,x,y,w,h,c){g.fillStyle=c;g.fillRect(x,y,w,h);}
+  function disc(g,cx,cy,rx,ry,c,fn){
+    for(var y=Math.floor(cy-ry);y<=Math.ceil(cy+ry);y++)for(var x=Math.floor(cx-rx);x<=Math.ceil(cx+rx);x++){
+      var dx=(x+.5-cx)/rx,dy=(y+.5-cy)/ry;if(dx*dx+dy*dy<=1)dot(g,x,y,fn?fn(x,y):c);}
+  }
+  function curve(S,C,E,n){var p=[];for(var i=0;i<=n;i++){var t=i/n,u=1-t;p.push([u*u*S[0]+2*u*t*C[0]+t*t*E[0],u*u*S[1]+2*u*t*C[1]+t*t*E[1],t]);}return p;}
+  var HORNS=[[[12,13],[4,13],[4,5]],[[20,13],[28,13],[28,5]],[[16,11],[15,6],[16,2]]];
+
+  function jester(o){
+    var c=mk(32,32),g=c.getContext('2d'),a=o.a,b=o.b,skin=o.skin||'#f4dcb4',sh=o.sh||'#d7b283';
+    for(var k=0;k<4;k++)disc(g,10+k*4,27,3.4,4,OL);
+    HORNS.forEach(function(h){
+      curve(h[0],h[1],h[2],22).forEach(function(p){var r=4.2-1.9*p[2];disc(g,p[0],p[1],r,r,OL);});
+      disc(g,h[2][0],h[2][1],3.3,3.3,OL);
+    });
+    disc(g,16,17,9,9,OL);
+    for(k=0;k<4;k++)disc(g,10+k*4,27,2.4,3,k%2?a:b);
+    HORNS.forEach(function(h){
+      curve(h[0],h[1],h[2],22).forEach(function(p){var r=3.2-1.9*p[2];disc(g,p[0],p[1],r,r,Math.floor(p[2]*7)%2?b:a);});
+      disc(g,h[2][0],h[2][1],2.3,2.3,GOLD);dot(g,h[2][0]-1,h[2][1]-1,'#fff3c4');
+    });
+    disc(g,16,17,8,8,skin,function(x,y){
+      if(y<=14)return(((x>>1)+(y>>1))%2)?a:b;
+      if(y===15)return OL;
+      return(x+y>=34)?sh:skin;
+    });
+    if(o.beard){for(var y=21;y<=28;y++){var hw=Math.max(2,Math.round(7-(y-21)*.7));rect(g,16-hw,y,hw*2,1,'#ecebf2');}}
+    else{rect(g,11,21,2,1,'#f08a8a');rect(g,20,21,2,1,'#f08a8a');}
+    if(o.glass){
+      rect(g,11,16,5,5,OL);rect(g,17,16,5,5,OL);rect(g,16,17,1,1,OL);
+      rect(g,12,17,3,3,o.glass);rect(g,18,17,3,3,o.glass);
+      rect(g,13,18,1,2,OL);rect(g,19,18,1,2,OL);
+    }else{
+      rect(g,12,17,3,3,'#fff');rect(g,18,17,3,3,'#fff');rect(g,13,18,1,2,OL);rect(g,19,18,1,2,OL);
+    }
+    dot(g,16,20,'#e0a37b');
+    if(o.m==='grin'){rect(g,12,22,9,2,'#7a1220');rect(g,12,22,9,1,'#fff');}
+    else{dot(g,12,22,OL);dot(g,20,22,OL);rect(g,13,23,7,1,OL);}
+    if(o.acc==='crown'){
+      rect(g,10,8,12,5,OL);rect(g,14,5,4,3,OL);
+      rect(g,11,9,10,3,GOLD);rect(g,11,7,2,2,GOLD);rect(g,15,6,2,3,GOLD);rect(g,19,7,2,2,GOLD);
+      dot(g,16,10,'#e5484d');dot(g,12,10,'#3a97ff');dot(g,20,10,'#3a97ff');
+    }
+    if(o.acc==='star'){[[16,10],[15,11],[16,11],[17,11],[16,12]].forEach(function(p){dot(g,p[0],p[1],GOLD);});}
+    if(o.acc==='duo'){[[12,11],[20,11]].forEach(function(p){dot(g,p[0],p[1],'#fff');dot(g,p[0]-1,p[1],'#fff');dot(g,p[0]+1,p[1],'#fff');dot(g,p[0],p[1]-1,'#fff');dot(g,p[0],p[1]+1,'#fff');});}
+    if(o.acc==='pennant'){rect(g,3,13,1,17,'#6b4a2b');rect(g,4,14,4,3,'#3a97ff');rect(g,4,17,2,1,'#3a97ff');}
+    if(o.acc==='frame'){
+      g.fillStyle=GOLD;g.fillRect(0,0,32,2);g.fillRect(0,30,32,2);g.fillRect(0,0,2,32);g.fillRect(30,0,2,32);
+      g.fillStyle=OL;g.fillRect(2,2,28,1);g.fillRect(2,29,28,1);g.fillRect(2,2,1,28);g.fillRect(29,2,1,28);
+    }
+    g.globalCompositeOperation='source-atop';
+    if(o.grid){g.fillStyle='rgba(255,255,255,.32)';for(var i=0;i<32;i+=4){g.fillRect(i,0,1,32);g.fillRect(0,i,32,1);}}
+    if(o.scan){g.fillStyle='rgba(0,255,220,.22)';for(i=0;i<32;i+=2)g.fillRect(0,i,32,1);}
+    g.globalCompositeOperation='source-over';
+    return c;
+  }
+
+  var PL={
+    'Plutón':{b:'#c8a98a',d:'#8a6e57',l:'#e9d6bf',r:5.2},
+    'Mercurio':{b:'#9a9aa6',d:'#62626e',l:'#cfcfd8',r:5.4},
+    'Urano':{b:'#7fe3e8',d:'#3fa7b4',l:'#c9fbfd',r:6},
+    'Venus':{b:'#e9b868',d:'#b27a38',l:'#fbe2ac',r:6},
+    'Saturno':{b:'#e8c982',d:'#a98542',l:'#f8e8b8',r:5,ring:'#d9b36a',band:'#c9a35c'},
+    'Júpiter':{b:'#d99a63',d:'#8f5a33',l:'#f1cfa6',r:6.5,band:'#b9764a'},
+    'Tierra':{b:'#3a7bd5',d:'#1b4a99',l:'#8fd0ff',r:6,land:'#3fa564'},
+    'Marte':{b:'#d2573b',d:'#8e2e1f',l:'#f0997f',r:5.4},
+    'Neptuno':{b:'#3b57d9',d:'#1f2f8f',l:'#8fa5ff',r:6},
+    'Planeta X':{b:'#9a5fd6',d:'#5b2f95',l:'#d4b0ff',r:4.8,ring:GOLD},
+    'Ceres':{b:'#a39a8a',d:'#6a6354',l:'#d9d2c3',r:4.4},
+    'Eris':{b:'#e8f0f5',d:'#98aab8',l:'#ffffff',r:5.4}
+  };
+  function planet(name){
+    var q=PL[name],c=mk(16,16),g=c.getContext('2d');
+    function ring(front){
+      for(var i=0;i<=60;i++){
+        var t=i/60*Math.PI*2,s=Math.sin(t);if((s>=0)!==front)continue;
+        var f=-.35,x=8+7.6*Math.cos(t)*Math.cos(f)-2.3*s*Math.sin(f),y=8+7.6*Math.cos(t)*Math.sin(f)+2.3*s*Math.cos(f);
+        dot(g,x,y,q.ring);
+      }
+    }
+    if(q.ring)ring(false);
+    disc(g,8,8,q.r+1,q.r+1,OL);
+    disc(g,8,8,q.r,q.r,q.b,function(x,y){
+      var dx=(x+.5-8)/q.r,dy=(y+.5-8)/q.r,li=-dx*.55-dy*.55;
+      if(q.band&&(y%4===0))return q.band;
+      if(q.land&&((x*7+y*13)%11<3))return q.land;
+      return li>.4?q.l:(li<-.3?q.d:q.b);
+    });
+    if(q.ring)ring(true);
+    return c;
+  }
+
+  var DECKS=[
+    {n:'Mazo rojo',d:'+1 descarte por ronda.',a:'#c9303b',b:'#7e1b24'},
+    {n:'Mazo azul',d:'+1 mano por ronda.',a:'#2f6fd1',b:'#1b3f7c'},
+    {n:'Mazo amarillo',d:'Empiezas con $10 extra.',a:'#e9b83a',b:'#a67c12'},
+    {n:'Mazo verde',d:'Al cerrar la ronda: $2 por mano y $1 por descarte que sobre. No hay interés.',a:'#2f9b66',b:'#1a5e3c'},
+    {n:'Mazo negro',d:'+1 hueco de joker, pero −1 mano por ronda.',a:'#34343e',b:'#121216'},
+    {n:'Mazo mágico',d:'Empiezas con el cupón Bola de cristal y 2 cartas El Loco.',a:'#7a4fd0',b:'#3d2478'},
+    {n:'Mazo abandonado',d:'El mazo inicial no tiene figuras.',a:'#8a8068',b:'#554e3d'},
+    {n:'Mazo ajedrezado',d:'26 picas y 26 corazones, sin tréboles ni diamantes.',a:'#c9303b',b:'#1b1b22',chk:1}
+  ];
+  function deckArt(d){
+    var c=mk(28,40),g=c.getContext('2d');
+    rect(g,0,0,28,40,OL);rect(g,1,1,26,38,'#f6efde');rect(g,3,3,22,34,OL);
+    for(var y=4;y<36;y++)for(var x=4;x<24;x++){
+      var on=d.chk?(((x>>1)+(y>>1))%2===0):((x+y)%6===0||(x-y+60)%6===0);
+      dot(g,x,y,on?d.b:d.a);
+    }
+    for(var r=0;r<=6;r++){rect(g,14-r,20-6+r,r*2,1,'#f6efde');rect(g,14-r,20+6-r,r*2,1,'#f6efde');}
+    for(r=0;r<=4;r++){rect(g,14-r,20-4+r,r*2,1,d.a);rect(g,14-r,20+4-r,r*2,1,d.a);}
+    for(r=0;r<=2;r++){rect(g,14-r,20-2+r,r*2,1,d.chk?d.b:'#f6efde');rect(g,14-r,20+2-r,r*2,1,d.chk?d.b:'#f6efde');}
+    g.clearRect(0,0,1,1);g.clearRect(27,0,1,1);g.clearRect(0,39,1,1);g.clearRect(27,39,1,1);
+    return c;
+  }
 
   /* ---------- tilt ---------- */
   function tilt(el,k){
@@ -616,26 +767,27 @@ footer .wrap{display:grid;gap:8px}
 
   /* ---------- jokers ---------- */
   var JOKERS=[
-    {n:'Joker',e:'+4 Mult',d:'El joker básico. Suma multiplicador en cada mano.',r:'c',s:'J',a:'#d9473f',b:'#a93029'},
-    {n:'Jolly Joker',e:'+8 Mult',d:'Se activa si la mano contiene una pareja.',r:'c',s:'♣',a:'#3a97ff',b:'#2c76c7'},
-    {n:'Banner',e:'+30 fichas',d:'Por cada descarte que te quede sin usar.',r:'c',s:'⚑',a:'#3a97ff',b:'#2459a0'},
-    {n:'Photograph',e:'X2 Mult',d:'La primera carta de figura que puntúa multiplica por dos.',r:'c',s:'▣',a:'#8a6d3b',b:'#6a522a'},
-    {n:'Cavendish',e:'X3 Mult',d:'Una probabilidad entre 1000 de destruirse al terminar la ronda.',r:'c',s:'❦',a:'#e5b93c',b:'#c19520'},
-    {n:'Mystic Summit',e:'+15 Mult',d:'Cuando no te quedan descartes.',r:'c',s:'▲',a:'#7a4fd0',b:'#5c38a8'},
-    {n:'Hologram',e:'X0,25 Mult',d:'Crece por cada carta que añades a tu mazo.',r:'p',s:'◈',a:'#2fc78a',b:'#1f9a69'},
-    {n:'The Duo',e:'X2 Mult',d:'Se activa si la mano contiene una pareja.',r:'r',s:'II',a:'#ff6a62',b:'#d1453d'},
-    {n:'Baron',e:'X1,5 Mult',d:'Por cada Rey que mantienes en la mano.',r:'r',s:'♚',a:'#c9303b',b:'#8e1f28'},
-    {n:'Blueprint',e:'Copia',d:'Copia la habilidad del joker que tiene a su derecha.',r:'r',s:'⌗',a:'#3a97ff',b:'#1f5fb8'},
-    {n:'Triboulet',e:'X2 Mult',d:'Cada Rey y Reina que puntúa multiplica por dos.',r:'l',s:'♛',a:'#b982ff',b:'#7f4ed1'},
-    {n:'Perkeo',e:'Clona',d:'Al salir de la tienda copia un consumible al azar.',r:'l',s:'✦',a:'#b982ff',b:'#5a35a0'}
+    {n:'Joker',e:'+4 Mult',d:'El joker básico. Suma multiplicador en cada mano.',r:'c',a:'#d9473f',b:'#a93029',sp:{a:'#d9473f',b:'#8e2a24',m:'grin'}},
+    {n:'Jolly Joker',e:'+8 Mult',d:'Se activa si la mano contiene una pareja.',r:'c',a:'#3a97ff',b:'#2c76c7',sp:{a:'#3a97ff',b:'#f4f4fb',m:'grin'}},
+    {n:'Banner',e:'+30 fichas',d:'Por cada descarte que te quede sin usar.',r:'c',a:'#3a97ff',b:'#2459a0',sp:{a:'#2f6fd1',b:'#1b3f7c',acc:'pennant'}},
+    {n:'Photograph',e:'X2 Mult',d:'La primera carta de figura que puntúa multiplica por dos.',r:'c',a:'#8a6d3b',b:'#6a522a',sp:{a:'#8a6d3b',b:'#4e3a1d',acc:'frame',skin:'#e9d2a9',sh:'#c7a874'}},
+    {n:'Cavendish',e:'X3 Mult',d:'Una probabilidad entre 1000 de destruirse al terminar la ronda.',r:'c',a:'#e5b93c',b:'#c19520',sp:{a:'#f2cf3a',b:'#c19520',m:'grin',glass:'#222'}},
+    {n:'Mystic Summit',e:'+15 Mult',d:'Cuando no te quedan descartes.',r:'c',a:'#7a4fd0',b:'#5c38a8',sp:{a:'#7a4fd0',b:'#3d2478',acc:'star'}},
+    {n:'Hologram',e:'X0,25 Mult',d:'Crece por cada carta que añades a tu mazo.',r:'p',a:'#2fc78a',b:'#1f9a69',sp:{a:'#2fc78a',b:'#17775a',glass:'#9ffcf0',scan:1,skin:'#c9f2e4',sh:'#8fd0bb'}},
+    {n:'The Duo',e:'X2 Mult',d:'Se activa si la mano contiene una pareja.',r:'r',a:'#ff6a62',b:'#d1453d',sp:{a:'#ff6a62',b:'#f4f4fb',acc:'duo',m:'grin'}},
+    {n:'Baron',e:'X1,5 Mult',d:'Por cada Rey que mantienes en la mano.',r:'r',a:'#c9303b',b:'#8e1f28',sp:{a:'#2b2b33',b:'#c9303b',acc:'crown'}},
+    {n:'Blueprint',e:'Copia',d:'Copia la habilidad del joker que tiene a su derecha.',r:'r',a:'#3a97ff',b:'#1f5fb8',sp:{a:'#2f6fd1',b:'#1b3f7c',glass:'#bfe3ff',grid:1,skin:'#cfe3ff',sh:'#9fc3f2'}},
+    {n:'Triboulet',e:'X2 Mult',d:'Cada Rey y Reina que puntúa multiplica por dos.',r:'l',a:'#b982ff',b:'#7f4ed1',sp:{a:'#7f4ed1',b:'#f5be4f',acc:'crown',m:'grin'}},
+    {n:'Perkeo',e:'Clona',d:'Al salir de la tienda copia un consumible al azar.',r:'l',a:'#b982ff',b:'#5a35a0',sp:{a:'#5a35a0',b:'#2fc7b0',beard:1}}
   ];
   var RN={c:['Común','r-comun'],p:['Poco común','r-poco'],r:['Rara','r-raro'],l:['Legendaria','r-leg']};
   var jg=$('jgrid'),jh='';
-  JOKERS.forEach(function(j){
-    jh+='<article class="joker" data-r="'+j.r+'"><div class="art" style="--a:'+j.a+';--b:'+j.b+'" aria-hidden="true">'+j.s+'</div>'
+  JOKERS.forEach(function(j,i){
+    jh+='<article class="joker" data-r="'+j.r+'"><div class="art" style="--a:'+j.a+';--b:'+j.b+'" aria-hidden="true" data-j="'+i+'"></div>'
       +'<span class="rar '+RN[j.r][1]+'">'+RN[j.r][0]+'</span><h3>'+j.n+'</h3><div class="eff">'+j.e+'</div><p>'+j.d+'</p></article>';
   });
   jg.innerHTML=jh;
+  Array.prototype.forEach.call(jg.querySelectorAll('[data-j]'),function(el){el.appendChild(jester(JOKERS[+el.dataset.j].sp));});
   Array.prototype.forEach.call(jg.children,function(el){tilt(el,8);});
   var F=[['all','Todos'],['c','Comunes'],['p','Poco comunes'],['r','Raras'],['l','Legendarias']],fh='';
   F.forEach(function(f,i){fh+='<button type="button" data-f="'+f[0]+'" aria-pressed="'+(i===0)+'">'+f[1]+'</button>';});
@@ -645,6 +797,14 @@ footer .wrap{display:grid;gap:8px}
     Array.prototype.forEach.call($('filters').children,function(x){x.setAttribute('aria-pressed',x===b);});
     Array.prototype.forEach.call(jg.children,function(el){el.hidden=!(b.dataset.f==='all'||el.dataset.r===b.dataset.f);});
   });
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-pl]'),function(el){el.insertBefore(planet(el.dataset.pl),el.firstChild);});
+  var hj=$('heroJokerArt');hj.appendChild(jester({a:'#d9473f',b:'#8e2a24',m:'grin'}));
+  var dk=$('decks'),dh='';
+  DECKS.forEach(function(d,i){dh+='<article class="deck"><span data-d="'+i+'"></span><div><h3>'+d.n+'</h3><p>'+d.d+'</p></div></article>';});
+  dk.innerHTML=dh;
+  Array.prototype.forEach.call(dk.querySelectorAll('[data-d]'),function(el){el.replaceWith(deckArt(DECKS[+el.dataset.d]));});
+  tilt($('heroJoker'),14);
 })();
 </script>
 
