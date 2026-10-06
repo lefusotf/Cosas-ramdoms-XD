@@ -19,7 +19,7 @@ La interfaz de Netlify cambia con el tiempo. Si los nombres no coinciden, busca 
    `https://tu-sitio.netlify.app/#editar`
 2. Aparece una barra verde de **Modo editor** y el botón **+ Añadir nivel**.
    Rellena nombre, posición, intentos y lo demás. La imagen puedes arrastrarla, pegarla (Ctrl+V) o elegirla.
-   También puedes editar, subir y bajar puestos, borrar y cambiar tu nombre en **Perfil**.
+   También puedes editar, subir y bajar puestos, borrar, y cambiar tu nombre y tu imagen de perfil en **Perfil**.
 3. Tus cambios quedan como **borrador en tu navegador** (los ves tú, no el resto).
 4. Pulsa **Descargar index.html** en la barra verde.
 5. Reemplaza el `index.html` de la carpeta por el que descargaste y súbela otra vez:
