@@ -1,3 +1,9 @@
-# Si conectas este repositorio a Netlify, publica solo la carpeta de la demonlist.
+# Demonlist en la nube: Netlify publica la carpeta demonlist-cloud/public
+# y despliega la función de demonlist-cloud/netlify/functions (guarda en Netlify Blobs).
 [build]
-  publish = "netlify-demonlist"
+  base = "demonlist-cloud"
+  publish = "public"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "20"

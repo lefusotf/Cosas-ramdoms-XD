@@ -1,0 +1,165 @@
+{
+ "rev": 0,
+ "site": {
+  "title": "Sopon zacamil list",
+  "tag": "Los demons más duros que nos hemos pasado.",
+  "avatar": "img/logo.jpg"
+ },
+ "players": [
+  {
+   "id": "p1",
+   "name": "Jugador 1",
+   "levels": [
+    {
+     "id": "abel",
+     "name": "ABEL",
+     "creator": "",
+     "a": "8k",
+     "n": 8000,
+     "diff": "",
+     "date": "",
+     "video": "",
+     "notes": "",
+     "img": "img/abel.jpg"
+    },
+    {
+     "id": "subsonic",
+     "name": "SubSonic",
+     "creator": "",
+     "a": "2k + 30k",
+     "n": 32000,
+     "diff": "",
+     "date": "",
+     "video": "",
+     "notes": "Incluye 30k intentos antiguos (old jumping from Cataclysm).",
+     "img": "img/subsonic.jpg"
+    },
+    {
+     "id": "moment",
+     "name": "Moment",
+     "creator": "",
+     "a": "7k",
+     "n": 7000,
+     "diff": "",
+     "date": "",
+     "video": "",
+     "notes": "",
+     "img": "img/moment.jpg"
+    },
+    {
+     "id": "bloodbath",
+     "name": "Bloodbath",
+     "creator": "",
+     "a": "5k",
+     "n": 5000,
+     "diff": "",
+     "date": "",
+     "video": "",
+     "notes": "",
+     "img": "img/bloodbath.jpg"
+    },
+    {
+     "id": "quaoar",
+     "name": "Quaoar",
+     "creator": "",
+     "a": "7k",
+     "n": 7000,
+     "diff": "",
+     "date": "",
+     "video": "",
+     "notes": "",
+     "img": "img/quaoar.jpg"
+    },
+    {
+     "id": "crowd-control",
+     "name": "Crowd Control",
+     "creator": "",
+     "a": "2.8k",
+     "n": 2800,
+     "diff": "",
+     "date": "",
+     "video": "",
+     "notes": "",
+     "img": "img/crowd-control.jpg"
+    },
+    {
+     "id": "cataclysm",
+     "name": "Cataclysm",
+     "creator": "",
+     "a": "20k",
+     "n": 20000,
+     "diff": "",
+     "date": "",
+     "video": "",
+     "notes": "",
+     "img": "img/cataclysm.jpg"
+    },
+    {
+     "id": "azurite",
+     "name": "Azurite",
+     "creator": "",
+     "a": "2k",
+     "n": 2000,
+     "diff": "",
+     "date": "",
+     "video": "",
+     "notes": "",
+     "img": "img/azurite.jpg"
+    },
+    {
+     "id": "mizureta",
+     "name": "Mizureta",
+     "creator": "",
+     "a": "3k",
+     "n": 3000,
+     "diff": "",
+     "date": "",
+     "video": "",
+     "notes": "",
+     "img": "img/mizureta.jpg"
+    },
+    {
+     "id": "niwa",
+     "name": "Niwa",
+     "creator": "",
+     "a": "16k",
+     "n": 16000,
+     "diff": "",
+     "date": "",
+     "video": "",
+     "notes": "",
+     "img": "img/niwa.jpg"
+    },
+    {
+     "id": "acu",
+     "name": "Acu",
+     "creator": "",
+     "a": "2k",
+     "n": 2000,
+     "diff": "",
+     "date": "",
+     "video": "",
+     "notes": "",
+     "img": "img/acu.jpg"
+    },
+    {
+     "id": "prismatic",
+     "name": "Prismatic",
+     "creator": "232321321",
+     "a": "2k",
+     "n": 2000,
+     "diff": "",
+     "date": "",
+     "video": "",
+     "notes": "",
+     "img": "img/prismatic.jpg"
+    }
+   ]
+  },
+  {
+   "id": "p2",
+   "name": "Jugador 2",
+   "levels": []
+  }
+ ]
+}

@@ -1,0 +1,10 @@
+{
+  "name": "demonlist-cloud",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Demonlist compartida con guardado en Netlify Blobs",
+  "dependencies": {
+    "@netlify/blobs": "^8.2.0"
+  }
+}
