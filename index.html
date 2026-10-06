@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Balatro Hub: guia de fans con simulador de puntuacion, manos de poker y jokers.">
+<style>html{color-scheme:dark}body{margin:0}</style>
+<title>Balatro Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;600;800&family=JetBrains+Mono:wght@500;700&family=Pixelify+Sans:wght@500;700&display=swap">
+<style>
+/* Layout: mesa de fieltro. Hero con remolino de pintura en baja resolución, secciones apiladas sobre paneles oscuros, el simulador como pieza central. */
+:root{
+  --bg:#08201c; --bg-2:#0c2924; --panel:#11362f; --panel-2:#17463c; --line:#2b5c50;
+  --ink:#f4ecd8; --ink-dim:#a6c0b4; --red:#ff5a52; --blue:#3a97ff; --gold:#f5be4f;
+  --card:#f6efde; --card-ink:#1b1b22; --suit-red:#c9303b; --ok:#6ee7a0;
+  --display:'Pixelify Sans','Courier New',monospace;
+  --body:'Bricolage Grotesque',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.6 var(--body);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--display);font-weight:700;line-height:1.05;margin:0;text-wrap:balance;letter-spacing:.01em}
+p{margin:0}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-radius:4px}
+.wrap{width:min(1120px,100% - 32px);margin-inline:auto}
+.eyebrow{font:700 .75rem/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.sec{padding-block:clamp(56px,9vw,104px)}
+.sec h2{font-size:clamp(2rem,5vw,3.2rem)}
+.sec-head{display:grid;gap:14px;margin-bottom:40px;max-width:62ch}
+.sec-head p{color:var(--ink-dim);font-size:1.0625rem}
+.num{font-variant-numeric:tabular-nums}
+
+/* nav */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:56px}
+.logo{font:700 1.25rem var(--display);text-decoration:none;display:flex;align-items:center;gap:10px;letter-spacing:.04em}
+.logo i{width:22px;height:30px;background:var(--card);border-radius:4px;display:grid;place-items:center;color:var(--suit-red);font:700 14px var(--display);font-style:normal;transform:rotate(-8deg);box-shadow:2px 2px 0 #000}
+.nav ul{display:flex;gap:4px;list-style:none;margin:0;padding:0}
+.nav ul a{display:block;padding:8px 12px;border-radius:8px;text-decoration:none;font-size:.9rem;color:var(--ink-dim)}
+.nav ul a:hover{background:var(--panel);color:var(--ink)}
+@media(max-width:760px){.nav ul li:not(:last-child):not(:nth-child(2)){display:none}}
+
+/* hero */
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+#swirl{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;opacity:.9}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--bg) 0%,color-mix(in srgb,var(--bg) 70%,transparent) 45%,transparent 100%),linear-gradient(0deg,var(--bg) 0%,transparent 30%);pointer-events:none}
+.hero .wrap{position:relative;z-index:1;display:grid;grid-template-columns:1.05fr 1fr;gap:40px;align-items:center;padding-block:clamp(40px,7vw,88px)}
+.hero h1{font-size:clamp(2.6rem,7.4vw,5.2rem);margin-block:18px 20px}
+.hero h1 em{font-style:normal;color:var(--red);text-shadow:3px 3px 0 #000}
+.hero .lead{font-size:1.15rem;color:var(--ink);max-width:46ch;opacity:.92}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.btn{font:700 1rem var(--display);letter-spacing:.04em;padding:13px 22px;border-radius:10px;border:2px solid #000;text-decoration:none;cursor:pointer;display:inline-block;box-shadow:0 4px 0 #000;transition:transform .08s,box-shadow .08s;color:#fff;background:var(--red)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 0 #000}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #000}
+.btn.alt{background:var(--blue)}
+.btn.ghost{background:var(--panel);color:var(--ink)}
+.stats{display:flex;flex-wrap:wrap;gap:12px 32px;margin-top:36px;padding:0;list-style:none}
+.stats li{display:grid;gap:2px}
+.stats b{font:700 2rem var(--display);color:var(--gold)}
+.stats span{font-size:.8rem;color:var(--ink-dim);text-transform:uppercase;letter-spacing:.1em}
+
+/* playing card */
+.card{--w:clamp(62px,13vw,104px);position:relative;width:var(--w);aspect-ratio:5/7;font-size:calc(var(--w)/6.2);background:var(--card);color:var(--card-ink);border:2px solid #000;border-radius:.7em;box-shadow:.25em .35em 0 rgba(0,0,0,.55);font-family:var(--display);font-weight:700;user-select:none;
+  transform:translateY(calc(var(--ty,0px) + var(--lift,0px))) rotate(var(--rot,0deg)) perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .18s ease-out}
+.card.red{color:var(--suit-red)}
+.card .cr{position:absolute;left:.55em;top:.35em;display:grid;line-height:1;font-size:1.25em;text-align:center}
+.card .cr.b{left:auto;right:.55em;top:auto;bottom:.35em;transform:rotate(180deg)}
+.card .mid{position:absolute;inset:0;display:grid;place-items:center;font-size:3.1em}
+.card .face{position:absolute;inset:18% 20%;border:.12em solid currentColor;border-radius:.3em;display:grid;place-items:center;font-size:2.4em;opacity:.95;background:repeating-linear-gradient(45deg,transparent 0 .35em,color-mix(in srgb,currentColor 9%,transparent) .35em .7em)}
+.card.scored{--lift:-22px}
+.card .plus{position:absolute;left:50%;top:-1.7em;transform:translateX(-50%);font:700 1.2em var(--mono);color:#fff;background:var(--blue);border:2px solid #000;border-radius:.4em;padding:.05em .4em;opacity:0;pointer-events:none;white-space:nowrap}
+.card.scored .plus{opacity:1;animation:pop .5s ease-out}
+@keyframes pop{from{transform:translate(-50%,10px) scale(.6)}to{transform:translate(-50%,0) scale(1)}}
+
+.fan{display:flex;justify-content:center;align-items:flex-end;padding-top:40px;height:calc(clamp(62px,13vw,104px)*1.4 + 70px)}
+.fan .card{margin-left:calc(var(--w)*-.22);flex:none}
+.fan .card:first-child{margin-left:0}
+.score-board{margin-top:26px;display:grid;gap:10px;justify-items:center}
+.score-board .hname{font:700 1.15rem var(--display);letter-spacing:.06em}
+.score-board .hname small{font:500 .8rem var(--mono);color:var(--ink-dim);margin-left:8px}
+.calc{display:flex;align-items:stretch;gap:8px}
+.calc .box{min-width:92px;padding:8px 14px;border:2px solid #000;border-radius:10px;font:700 1.9rem var(--mono);text-align:center;font-variant-numeric:tabular-nums;box-shadow:0 3px 0 #000}
+.calc .chips{background:var(--blue)}.calc .mult{background:var(--red)}
+.calc .x{align-self:center;font:700 1.4rem var(--display);color:var(--ink-dim)}
+.total{font:700 clamp(1.8rem,5vw,2.6rem) var(--mono);color:var(--gold);font-variant-numeric:tabular-nums}
+.total small{font:500 .75rem var(--mono);color:var(--ink-dim);letter-spacing:.12em;text-transform:uppercase;display:block;text-align:center}
+@media(max-width:860px){.hero .wrap{grid-template-columns:1fr}.hero::after{background:linear-gradient(0deg,var(--bg) 0%,color-mix(in srgb,var(--bg) 60%,transparent) 60%,color-mix(in srgb,var(--bg) 35%,transparent) 100%)}}
+
+/* flow */
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin:0 0 48px;padding:0;list-style:none;counter-reset:s}
+.flow li{position:relative;padding:20px 18px;background:var(--panel);border:2px solid #000;margin-left:-2px;display:grid;gap:6px;align-content:start}
+.flow li:first-child{border-radius:12px 0 0 12px;margin-left:0}
+.flow li:last-child{border-radius:0 12px 12px 0}
+.flow b{font:700 1.1rem var(--display)}
+.flow span{font-size:.875rem;color:var(--ink-dim)}
+.flow .tag{font:700 .7rem var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+.flow li.boss{background:#3b1a22}.flow li.shop{background:#3b3216}
+@media(max-width:820px){.flow{grid-template-columns:1fr}.flow li,.flow li:first-child,.flow li:last-child{border-radius:0;margin:-2px 0 0}.flow li:first-child{border-radius:12px 12px 0 0;margin:0}.flow li:last-child{border-radius:0 0 12px 12px}}
+.two{display:grid;grid-template-columns:1.2fr 1fr;gap:40px}
+@media(max-width:900px){.two{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:2px solid #000;border-radius:14px;padding:clamp(18px,3vw,28px);box-shadow:0 5px 0 #000}
+.panel h3{font-size:1.4rem;margin-bottom:16px}
+.ante{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.ante li{display:grid;grid-template-columns:3.2rem 1fr auto;gap:12px;align-items:center;font:500 .875rem var(--mono)}
+.ante .bar{height:14px;background:var(--bg);border-radius:3px;overflow:hidden;border:1px solid #000}
+.ante .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--red));min-width:3px}
+.ante em{font-style:normal;color:var(--ink-dim);font-size:.75rem}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:10px 18px;margin:0}
+.kv dt{color:var(--ink-dim);font-size:.9rem}
+.kv dd{margin:0;font:700 1.05rem var(--mono)}
+.note{margin-top:18px;color:var(--ink-dim);font-size:.9rem}
+
+/* simulator */
+.simbg{background:var(--bg-2);border-block:1px solid var(--line)}
+.sim{display:grid;grid-template-columns:1fr 1.05fr;gap:28px;align-items:start}
+@media(max-width:900px){.sim{grid-template-columns:1fr}}
+.ctrl{display:grid;gap:18px}
+.ctrl label,.ctrl .lbl{display:flex;justify-content:space-between;gap:12px;font:700 .8rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:8px}
+.ctrl output{color:var(--gold)}
+select{width:100%;padding:11px 12px;background:var(--bg);color:var(--ink);border:2px solid #000;border-radius:8px;font:500 1rem var(--body)}
+input[type=range]{width:100%;accent-color:var(--red);height:28px}
+.pal{display:flex;flex-wrap:wrap;gap:8px}
+.pal button{font:600 .85rem var(--body);padding:8px 12px;border-radius:8px;border:2px solid #000;background:var(--panel-2);color:var(--ink);cursor:pointer}
+.pal button:hover{background:var(--line)}
+.pal button small{display:block;font:500 .7rem var(--mono);color:var(--ink-dim)}
+.slots{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:4px}
+.slot{min-height:92px;border:2px dashed var(--line);border-radius:10px;display:grid;place-items:center;text-align:center;padding:6px;font-size:.7rem;color:var(--ink-dim)}
+.slot.full{border:2px solid #000;background:var(--panel-2);display:grid;grid-template-rows:1fr auto;gap:4px;color:var(--ink)}
+.slot .jn{font:700 .8rem/1.1 var(--display);align-self:center}
+.slot .jd{font:500 .65rem var(--mono);color:var(--gold);display:block;margin-top:3px}
+.slot .mv{display:flex;justify-content:space-between;gap:2px}
+.slot .mv button{flex:1;background:var(--bg);color:var(--ink);border:1px solid #000;border-radius:4px;cursor:pointer;font:700 .8rem var(--mono);padding:2px 0}
+.slot .mv button:hover{background:var(--line)}
+.slot .mv button:disabled{opacity:.3;cursor:default}
+@media(max-width:480px){.slots{grid-template-columns:repeat(3,1fr)}}
+.board{background:#0b1e1b;border:2px solid #000;border-radius:14px;padding:clamp(16px,3vw,26px);box-shadow:0 5px 0 #000;display:grid;gap:20px;position:sticky;top:76px}
+@media(max-width:900px){.board{position:static}}
+.board .calc{justify-content:center}
+.board .calc .box{min-width:110px;font-size:2.2rem}
+.big{text-align:center;display:grid;gap:4px}
+.big small{font:500 .75rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-dim)}
+.big b{font:700 clamp(2.4rem,7vw,3.6rem) var(--mono);color:var(--gold);font-variant-numeric:tabular-nums;line-height:1}
+.trace{margin:0;padding:0;list-style:none;display:grid;gap:6px;font:500 .8rem var(--mono)}
+.trace li{display:grid;grid-template-columns:1fr auto;gap:10px;padding:7px 10px;background:var(--panel);border-radius:6px;border-left:4px solid var(--line)}
+.trace li.c{border-left-color:var(--blue)}.trace li.m{border-left-color:var(--red)}.trace li.x{border-left-color:var(--gold)}
+.trace li.skip{opacity:.5}
+.trace span{color:var(--ink-dim)}
+.verdict{padding:12px 14px;border-radius:10px;border:2px solid #000;font-weight:600;display:grid;gap:8px}
+.verdict.win{background:#12402b}.verdict.lose{background:#42191d}
+.verdict .meter{height:12px;background:#000;border-radius:3px;overflow:hidden}
+.verdict .meter i{display:block;height:100%;background:var(--ok);width:0;transition:width .4s}
+.verdict.lose .meter i{background:var(--red)}
+.hint{font-size:.85rem;color:var(--ink-dim)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ctrl button.link{background:none;border:0;color:var(--blue);font:600 .85rem var(--body);cursor:pointer;text-decoration:underline;padding:0;justify-self:start}
+
+/* hands table */
+.tw{overflow-x:auto;border:2px solid #000;border-radius:14px;box-shadow:0 5px 0 #000;background:var(--panel)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:.95rem}
+th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line)}
+th{font:700 .72rem var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim);background:var(--panel-2)}
+tr:last-child td{border-bottom:0}
+td.n{font:500 .9rem var(--mono);font-variant-numeric:tabular-nums}
+td .c{color:var(--blue);font-weight:700}td .m{color:var(--red);font-weight:700}
+.secret{font:700 .65rem var(--mono);letter-spacing:.1em;background:var(--gold);color:#000;border-radius:4px;padding:2px 6px;margin-left:8px;vertical-align:middle}
+.mini{display:block;height:8px;background:var(--bg);border-radius:2px;overflow:hidden;min-width:120px}
+.mini i{display:block;height:100%;background:var(--gold)}
+
+/* jokers */
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px}
+.filters button{font:700 .8rem var(--mono);letter-spacing:.06em;padding:9px 14px;border-radius:999px;border:2px solid #000;background:var(--panel);color:var(--ink);cursor:pointer}
+.filters button[aria-pressed=true]{background:var(--gold);color:#000}
+.jgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:22px}
+.joker{position:relative;background:var(--panel);border:2px solid #000;border-radius:14px;padding:18px;display:grid;gap:12px;box-shadow:0 5px 0 #000;transform:perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .18s ease-out}
+.joker .art{height:120px;border-radius:10px;border:2px solid #000;display:grid;place-items:center;font:700 3.2rem var(--display);color:#fff;text-shadow:3px 3px 0 #000;background:repeating-linear-gradient(135deg,var(--a) 0 12px,var(--b) 12px 24px)}
+.joker h3{font-size:1.3rem}
+.joker p{font-size:.92rem;color:var(--ink-dim)}
+.joker .eff{font:700 .95rem var(--mono);color:var(--ink)}
+.rar{font:700 .68rem var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:4px;justify-self:start;border:1px solid #000}
+.r-comun{background:#7fb3ff;color:#001a3a}.r-poco{background:#6ee7a0;color:#00281a}.r-raro{background:#ff7a72;color:#3a0300}.r-leg{background:#c9a0ff;color:#240047}
+.joker[hidden]{display:none}
+
+/* facts */
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+@media(max-width:860px){.facts{grid-template-columns:1fr}}
+.tips{list-style:none;margin:0;padding:0;display:grid;gap:16px}
+.tips li{padding-left:18px;border-left:4px solid var(--red)}
+.tips b{display:block;font-family:var(--display);font-size:1.1rem;margin-bottom:2px}
+.tips span{color:var(--ink-dim);font-size:.95rem}
+.awards{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.awards li{display:flex;gap:12px;align-items:baseline;font-weight:600}
+.awards li::before{content:"♦";color:var(--suit-red);font-family:var(--display)}
+footer{border-top:1px solid var(--line);padding-block:40px;color:var(--ink-dim);font-size:.85rem}
+footer .wrap{display:grid;gap:8px}
+
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+</style>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="Balatro Hub, inicio"><i>♠</i>BALATRO HUB</a>
+    <nav aria-label="Principal">
+      <ul>
+        <li><a href="#partida">Partida</a></li>
+        <li><a href="#simulador">Simulador</a></li>
+        <li><a href="#manos">Manos</a></li>
+        <li><a href="#jokers">Jokers</a></li>
+        <li><a href="#datos">Datos</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+<section class="hero">
+  <canvas id="swirl" width="96" height="54" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <div>
+      <p class="eyebrow">Roguelike de póker · 2024</p>
+      <h1>Juega manos de póker. <em>Rompe</em> el multiplicador.</h1>
+      <p class="lead">Balatro es un juego de construcción de mazos donde cada mano puntúa fichas por multiplicador. Ganas con jokers que doblan las reglas, no con buenas cartas.</p>
+      <div class="cta">
+        <a class="btn" href="#simulador">Probar el simulador</a>
+        <a class="btn ghost" href="#jokers">Ver jokers</a>
+      </div>
+      <ul class="stats" aria-label="Datos clave">
+        <li><b>8</b><span>Antes</span></li>
+        <li><b>150</b><span>Jokers</span></li>
+        <li><b>15</b><span>Mazos</span></li>
+        <li><b>8</b><span>Stakes</span></li>
+      </ul>
+    </div>
+    <div aria-label="Ejemplo de mano puntuando">
+      <div class="fan" id="fan"></div>
+      <div class="score-board">
+        <div class="hname">Escalera de color <small>nv. 1</small></div>
+        <div class="calc" aria-live="polite">
+          <div class="box chips" id="hChips">151</div><div class="x">×</div><div class="box mult" id="hMult">8</div>
+        </div>
+        <div class="total"><small>Puntos</small><span id="hTotal">1.208</span></div>
+        <button class="btn alt" id="replay" type="button">Repetir mano</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="partida">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Cómo se juega</p>
+      <h2>Una partida es una subida de 8 antes</h2>
+      <p>Cada ante te pide superar tres ciegas. Cada ciega fija una puntuación mínima que debes alcanzar antes de quedarte sin manos. Superas la ciega, pasas por la tienda y sigues.</p>
+    </div>
+    <ol class="flow">
+      <li><span class="tag">Ciega pequeña</span><b>×1</b><span>Se puede saltar a cambio de una etiqueta con premio.</span></li>
+      <li><span class="tag">Ciega grande</span><b>×1,5</b><span>También se puede saltar. Cada salto te quita una tienda.</span></li>
+      <li class="boss"><span class="tag">Ciega jefe</span><b>×2</b><span>No se salta y trae una regla que te estorba.</span></li>
+      <li class="shop"><span class="tag">Tienda</span><b>Entre ciegas</b><span>Compras jokers, planetas, tarots y sobres con tu dinero.</span></li>
+      <li><span class="tag">Ante 8</span><b>Victoria</b><span>Superar la ciega jefe del ante 8 completa la partida.</span></li>
+    </ol>
+    <div class="two">
+      <div class="panel">
+        <h3>Objetivo base por ante</h3>
+        <ul class="ante" id="anteList"></ul>
+        <p class="note">Stake blanco. Ciega pequeña ×1, grande ×1,5, jefe ×2. En stakes superiores las cifras suben.</p>
+      </div>
+      <div class="panel">
+        <h3>Punto de partida</h3>
+        <dl class="kv">
+          <dt>Manos por ronda</dt><dd>4</dd>
+          <dt>Descartes por ronda</dt><dd>3</dd>
+          <dt>Tamaño de mano</dt><dd>8 cartas</dd>
+          <dt>Dinero inicial</dt><dd>$4</dd>
+          <dt>Huecos de joker</dt><dd>5</dd>
+          <dt>Consumibles</dt><dd>2</dd>
+        </dl>
+        <p class="note">Al cerrar cada ronda cobras $1 de interés por cada $5 que guardes, hasta $5 de interés. Gastarlo todo cuesta crecimiento.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec simbg" id="simulador">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Simulador de puntuación</p>
+      <h2>El orden de los jokers cambia el resultado</h2>
+      <p>Las fichas se suman, luego el multiplicador, y los jokers actúan de izquierda a derecha. Un X2 antes de los +Mult vale menos que después. Prueba a mover The Duo con las flechas.</p>
+    </div>
+    <div class="sim">
+      <div class="panel ctrl">
+        <div>
+          <label for="hand">Mano jugada</label>
+          <select id="hand"></select>
+        </div>
+        <div>
+          <label for="lvl">Nivel de la mano <output id="lvlo" for="lvl">3</output></label>
+          <input type="range" id="lvl" min="1" max="15" value="3">
+        </div>
+        <div>
+          <label for="cc">Fichas de las cartas que puntúan <output id="cco" for="cc">20</output></label>
+          <input type="range" id="cc" min="0" max="80" value="20">
+          <p class="hint">As = 11, figuras = 10, el resto su valor.</p>
+        </div>
+        <div>
+          <span class="lbl">Jokers (máx. 5)</span>
+          <div class="pal" id="pal"></div>
+          <div class="slots" id="slots"></div>
+        </div>
+        <div class="row2">
+          <div>
+            <label for="ante">Ante</label>
+            <select id="ante"></select>
+          </div>
+          <div>
+            <label for="blind">Ciega</label>
+            <select id="blind">
+              <option value="1">Pequeña ×1</option>
+              <option value="1.5">Grande ×1,5</option>
+              <option value="2" selected>Jefe ×2</option>
+            </select>
+          </div>
+        </div>
+        <button class="link" id="clear" type="button">Quitar todos los jokers</button>
+      </div>
+      <div class="board" aria-live="polite">
+        <div class="calc">
+          <div class="box chips" id="sChips">0</div><div class="x">×</div><div class="box mult" id="sMult">0</div>
+        </div>
+        <div class="big"><small>Puntuación de la mano</small><b id="sTotal">0</b></div>
+        <div class="verdict" id="verdict"></div>
+        <ol class="trace" id="trace"></ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="manos">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Manos de póker</p>
+      <h2>Doce manos, doce valores base</h2>
+      <p>Cada mano parte de unas fichas y un multiplicador. Las cartas planeta suben su nivel y mejoran ambos. Tres manos son secretas y no aparecen hasta que las juegas por primera vez.</p>
+    </div>
+    <div class="tw" tabindex="0" role="region" aria-label="Tabla de manos">
+      <table>
+        <thead><tr><th>Mano</th><th>Fichas</th><th>Mult</th><th>Base</th><th>Planeta</th><th>Por nivel</th></tr></thead>
+        <tbody id="handRows"></tbody>
+      </table>
+    </div>
+    <p class="note">La escalera real cuenta como escalera de color. Los valores son del juego base en su versión actual.</p>
+  </div>
+</section>
+
+<section class="sec simbg" id="jokers">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Jokers</p>
+      <h2>Los jokers son el juego entero</h2>
+      <p>Una selección de los 150 jokers del juego. Los X de multiplicador escalan mejor que los +Mult, y las combinaciones entre ellos son lo que gana partidas.</p>
+    </div>
+    <div class="filters" id="filters" role="group" aria-label="Filtrar por rareza"></div>
+    <div class="jgrid" id="jgrid"></div>
+  </div>
+</section>
+
+<section class="sec" id="datos">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Ficha y consejos</p>
+      <h2>Lo básico para empezar bien</h2>
+    </div>
+    <div class="facts">
+      <div class="panel">
+        <h3>Ficha técnica</h3>
+        <dl class="kv">
+          <dt>Desarrollo</dt><dd>LocalThunk</dd>
+          <dt>Editor</dt><dd>Playstack</dd>
+          <dt>Lanzamiento</dt><dd>20 feb 2024</dd>
+          <dt>Motor</dt><dd>LÖVE (Lua)</dd>
+          <dt>Música</dt><dd>LouisF</dd>
+          <dt>Plataformas</dt><dd>PC, Mac, Switch, PlayStation, Xbox, iOS, Android</dd>
+        </dl>
+        <h3 style="margin-top:28px">Premios</h3>
+        <ul class="awards">
+          <li>The Game Awards 2024: Mejor juego indie</li>
+          <li>The Game Awards 2024: Mejor debut indie</li>
+          <li>The Game Awards 2024: Mejor juego móvil</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>Cinco consejos</h3>
+        <ul class="tips">
+          <li><b>Busca multiplicadores X</b><span>Un +Mult se queda corto hacia el ante 5. Prioriza jokers X Mult en cuanto aparezcan.</span></li>
+          <li><b>Vigila el interés</b><span>Terminar la ronda con $25 te da $5 extra cada vez. Es la mejor inversión temprana.</span></li>
+          <li><b>Concéntrate en una mano</b><span>Sube con planetas la mano que más juegas en vez de repartir niveles.</span></li>
+          <li><b>Ordena los jokers</b><span>Los efectos de fichas y +Mult primero, los X Mult al final.</span></li>
+          <li><b>Salta con intención</b><span>Saltar una ciega da una etiqueta, pero pierdes una tienda y dinero.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><b>Balatro Hub</b> es un sitio de fans sin afiliación oficial.</p>
+    <p>Balatro es una marca de LocalThunk y Playstack. Las cartas de esta página están dibujadas con CSS y no usan material del juego.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var REDUCED=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function fmt(n){return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');}
+  function $(id){return document.getElementById(id);}
+
+  var HANDS=[
+    {id:'high',n:'Carta alta',c:5,m:1,lc:10,lm:1,p:'Plutón'},
+    {id:'pair',n:'Pareja',c:10,m:2,lc:15,lm:1,p:'Mercurio'},
+    {id:'two',n:'Doble pareja',c:20,m:2,lc:20,lm:1,p:'Urano'},
+    {id:'three',n:'Trío',c:30,m:3,lc:20,lm:2,p:'Venus'},
+    {id:'straight',n:'Escalera',c:30,m:4,lc:30,lm:3,p:'Saturno'},
+    {id:'flush',n:'Color',c:35,m:4,lc:15,lm:2,p:'Júpiter'},
+    {id:'full',n:'Full',c:40,m:4,lc:25,lm:2,p:'Tierra'},
+    {id:'four',n:'Póker',c:60,m:7,lc:30,lm:3,p:'Marte'},
+    {id:'sf',n:'Escalera de color',c:100,m:8,lc:40,lm:4,p:'Neptuno'},
+    {id:'five',n:'Repóker',c:120,m:12,lc:35,lm:3,p:'Planeta X',s:1},
+    {id:'fh',n:'Full de color',c:140,m:14,lc:40,lm:4,p:'Ceres',s:1},
+    {id:'ff',n:'Color de repóker',c:160,m:16,lc:50,lm:3,p:'Eris',s:1}
+  ];
+  var HBY={};HANDS.forEach(function(h){HBY[h.id]=h;});
+  var HAS_PAIR={pair:1,two:1,three:1,full:1,four:1,five:1,fh:1,ff:1};
+  var HAS_THREE={three:1,full:1,four:1,five:1,fh:1,ff:1};
+  var ANTE=[300,800,2000,5000,11000,20000,35000,50000];
+
+  /* ---------- tabla de antes ---------- */
+  (function(){
+    var max=ANTE[7]*2,ul=$('anteList'),h='';
+    ANTE.forEach(function(b,i){
+      h+='<li><span>Ante '+(i+1)+'</span><span class="bar"><i style="width:'+(b*2/max*100)+'%"></i></span><span class="num">'+fmt(b*2)+' <em>jefe</em></span></li>';
+    });
+    ul.innerHTML=h;
+  })();
+
+  /* ---------- tabla de manos ---------- */
+  (function(){
+    var max=160*16,h='';
+    HANDS.forEach(function(x){
+      h+='<tr><td><b>'+x.n+'</b>'+(x.s?'<span class="secret">SECRETA</span>':'')+'</td>'
+        +'<td class="n"><span class="c">'+x.c+'</span></td><td class="n"><span class="m">'+x.m+'</span></td>'
+        +'<td class="n">'+fmt(x.c*x.m)+'<span class="mini"><i style="width:'+Math.max(1,x.c*x.m/max*100)+'%"></i></span></td>'
+        +'<td>'+x.p+'</td><td class="n"><span class="c">+'+x.lc+'</span> / <span class="m">+'+x.lm+'</span></td></tr>';
+    });
+    $('handRows').innerHTML=h;
+  })();
+
+  /* ---------- tilt ---------- */
+  function tilt(el,k){
+    if(REDUCED)return;
+    el.addEventListener('pointermove',function(e){
+      var r=el.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+      el.style.setProperty('--rx',(-y*k)+'deg');el.style.setProperty('--ry',(x*k)+'deg');
+    });
+    el.addEventListener('pointerleave',function(){el.style.setProperty('--rx','0deg');el.style.setProperty('--ry','0deg');});
+  }
+
+  /* ---------- hero: escalera de color de corazones ---------- */
+  var HERO=[{r:'10',v:10},{r:'J',v:10,f:1},{r:'Q',v:10,f:1},{r:'K',v:10,f:1},{r:'A',v:11}];
+  var fan=$('fan'),cardEls=[];
+  HERO.forEach(function(c,i){
+    var d=document.createElement('div');
+    d.className='card red';
+    var rot=(i-2)*7,ty=Math.abs(i-2)*Math.abs(i-2)*5;
+    d.style.setProperty('--rot',rot+'deg');d.style.setProperty('--ty',ty+'px');
+    d.setAttribute('role','img');d.setAttribute('aria-label',c.r+' de corazones');
+    d.innerHTML='<span class="cr"><span>'+c.r+'</span><span>♥</span></span><span class="cr b"><span>'+c.r+'</span><span>♥</span></span>'
+      +(c.f?'<span class="face">'+c.r+'</span>':'<span class="mid">♥</span>')
+      +'<span class="plus">+'+c.v+'</span>';
+    fan.appendChild(d);cardEls.push(d);tilt(d,16);
+  });
+  var hC=$('hChips'),hM=$('hMult'),hT=$('hTotal'),timers=[];
+  function heroRun(){
+    timers.forEach(clearTimeout);timers=[];
+    cardEls.forEach(function(c){c.classList.remove('scored');});
+    var chips=100;hC.textContent=chips;hM.textContent=8;hT.textContent='0';
+    HERO.forEach(function(c,i){
+      timers.push(setTimeout(function(){
+        cardEls[i].classList.add('scored');chips+=c.v;hC.textContent=chips;
+        if(i===HERO.length-1){timers.push(setTimeout(function(){hT.textContent=fmt(chips*8);},320));}
+      },500+i*380));
+    });
+  }
+  $('replay').addEventListener('click',function(){
+    if(REDUCED){cardEls.forEach(function(c){c.classList.add('scored');});return;}
+    heroRun();
+  });
+  if(REDUCED){cardEls.forEach(function(c){c.classList.add('scored');});}
+  else{setTimeout(heroRun,350);}
+
+  /* ---------- remolino de pintura ---------- */
+  (function(){
+    var cv=$('swirl'),ctx=cv.getContext('2d'),W=cv.width,H=cv.height;
+    var img=ctx.createImageData(W,H),d=img.data;
+    var P=[[8,32,28],[14,58,50],[74,24,38],[20,56,104]];
+    var visible=true,last=0;
+    if('IntersectionObserver' in window){new IntersectionObserver(function(e){visible=e[0].isIntersecting;}).observe(cv);}
+    function frame(ts){
+      if(visible&&ts-last>45){
+        last=ts;var t=ts/1000*.35,p=0;
+        for(var y=0;y<H;y++){for(var x=0;x<W;x++){
+          var ux=(x/W-.5)*3.4,uy=(y/H-.5)*1.9;
+          for(var i=1;i<5;i++){var ox=ux;ux+=.5/i*Math.sin(i*uy+t+.3*i);uy+=.5/i*Math.cos(i*ox+t*.8+.3*i);}
+          var v=Math.sin(ux*1.5+uy*1.5)+Math.sin(ux-uy*2);
+          var c=v<-1.1?P[1]:v<.1?P[0]:v<1.1?P[2]:P[3];
+          d[p++]=c[0];d[p++]=c[1];d[p++]=c[2];d[p++]=255;
+        }}
+        ctx.putImageData(img,0,0);
+      }
+      if(!REDUCED)requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+    if(REDUCED){setTimeout(function(){frame(100);},0);}
+  })();
+
+  /* ---------- simulador ---------- */
+  var JK={
+    joker:{n:'Joker',d:'+4 Mult',t:'m',cond:null,v:4},
+    jolly:{n:'Jolly Joker',d:'+8 Mult · Pareja',t:'m',cond:'pair',v:8},
+    wily:{n:'Wily Joker',d:'+100 fichas · Trío',t:'c',cond:'three',v:100},
+    duo:{n:'The Duo',d:'X2 Mult · Pareja',t:'x',cond:'pair',v:2},
+    cav:{n:'Cavendish',d:'X3 Mult',t:'x',cond:null,v:3}
+  };
+  var order=['duo','joker','jolly'];
+  var hs=$('hand'),lv=$('lvl'),cc=$('cc'),an=$('ante'),bl=$('blind');
+  HANDS.forEach(function(h){var o=document.createElement('option');o.value=h.id;o.textContent=h.n+(h.s?' (secreta)':'');hs.appendChild(o);});
+  hs.value='pair';
+  ANTE.forEach(function(b,i){var o=document.createElement('option');o.value=i;o.textContent='Ante '+(i+1)+' · base '+fmt(b);an.appendChild(o);});
+  an.value='1';
+
+  var pal=$('pal');
+  Object.keys(JK).forEach(function(k){
+    var b=document.createElement('button');b.type='button';b.innerHTML=JK[k].n+'<small>'+JK[k].d+'</small>';
+    b.addEventListener('click',function(){if(order.length<5){order.push(k);run();}});
+    pal.appendChild(b);
+  });
+  $('clear').addEventListener('click',function(){order=[];run();});
+
+  function renderSlots(){
+    var h='';
+    for(var i=0;i<5;i++){
+      if(order[i]){
+        var j=JK[order[i]];
+        h+='<div class="slot full"><div><span class="jn">'+j.n+'</span><span class="jd">'+j.d+'</span></div>'
+          +'<div class="mv"><button type="button" data-a="l" data-i="'+i+'" aria-label="Mover '+j.n+' a la izquierda"'+(i===0?' disabled':'')+'>◀</button>'
+          +'<button type="button" data-a="x" data-i="'+i+'" aria-label="Quitar '+j.n+'">✕</button>'
+          +'<button type="button" data-a="r" data-i="'+i+'" aria-label="Mover '+j.n+' a la derecha"'+(i===order.length-1?' disabled':'')+'>▶</button></div></div>';
+      }else h+='<div class="slot">Hueco '+(i+1)+'</div>';
+    }
+    $('slots').innerHTML=h;
+  }
+  $('slots').addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;
+    var i=+b.dataset.i,a=b.dataset.a;
+    if(a==='x')order.splice(i,1);
+    else if(a==='l'&&i>0){var t=order[i-1];order[i-1]=order[i];order[i]=t;}
+    else if(a==='r'&&i<order.length-1){var u=order[i+1];order[i+1]=order[i];order[i]=u;}
+    run();
+  });
+
+  var shown=0,raf=0;
+  function countTo(el,to){
+    cancelAnimationFrame(raf);
+    if(REDUCED){el.textContent=fmt(to);shown=to;return;}
+    var from=shown,t0=performance.now();
+    (function step(n){
+      var k=Math.min(1,(n-t0)/420),e=1-Math.pow(1-k,3);
+      el.textContent=fmt(from+(to-from)*e);
+      if(k<1)raf=requestAnimationFrame(step);else shown=to;
+    })(t0);
+  }
+
+  function run(){
+    var h=HBY[hs.value],L=+lv.value,card=+cc.value;
+    $('lvlo').textContent=L;$('cco').textContent=card;
+    var chips=h.c+(L-1)*h.lc,mult=h.m+(L-1)*h.lm;
+    var tr='<li class="c"><b>'+h.n+' nv. '+L+'</b><span>'+chips+' × '+mult+'</span></li>';
+    chips+=card;
+    tr+='<li class="c"><b>Cartas que puntúan</b><span>+'+card+' fichas</span></li>';
+    order.forEach(function(k){
+      var j=JK[k],ok=!j.cond||(j.cond==='pair'?HAS_PAIR[h.id]:HAS_THREE[h.id]);
+      if(!ok){tr+='<li class="skip"><b>'+j.n+'</b><span>no se activa</span></li>';return;}
+      if(j.t==='m'){mult+=j.v;tr+='<li class="m"><b>'+j.n+'</b><span>+'+j.v+' mult → '+mult+'</span></li>';}
+      else if(j.t==='c'){chips+=j.v;tr+='<li class="c"><b>'+j.n+'</b><span>+'+j.v+' fichas → '+chips+'</span></li>';}
+      else{mult*=j.v;tr+='<li class="x"><b>'+j.n+'</b><span>×'+j.v+' mult → '+mult+'</span></li>';}
+    });
+    var total=Math.floor(chips*mult);
+    $('sChips').textContent=fmt(chips);$('sMult').textContent=fmt(mult);
+    countTo($('sTotal'),total);
+    $('trace').innerHTML=tr;
+    var target=ANTE[+an.value]*parseFloat(bl.value),ok=total>=target,pct=Math.min(100,total/target*100);
+    var v=$('verdict');v.className='verdict '+(ok?'win':'lose');
+    v.innerHTML='<span>'+(ok?'Superas la ciega por '+fmt(total-target):'Te faltan '+fmt(target-total)+' puntos')+'</span>'
+      +'<span class="hint num">Objetivo '+fmt(target)+' · en una sola mano</span>'
+      +'<span class="meter"><i style="width:'+pct+'%"></i></span>';
+    renderSlots();
+  }
+  [hs,lv,cc,an,bl].forEach(function(el){el.addEventListener('input',run);});
+  run();
+
+  /* ---------- jokers ---------- */
+  var JOKERS=[
+    {n:'Joker',e:'+4 Mult',d:'El joker básico. Suma multiplicador en cada mano.',r:'c',s:'J',a:'#d9473f',b:'#a93029'},
+    {n:'Jolly Joker',e:'+8 Mult',d:'Se activa si la mano contiene una pareja.',r:'c',s:'♣',a:'#3a97ff',b:'#2c76c7'},
+    {n:'Banner',e:'+30 fichas',d:'Por cada descarte que te quede sin usar.',r:'c',s:'⚑',a:'#3a97ff',b:'#2459a0'},
+    {n:'Photograph',e:'X2 Mult',d:'La primera carta de figura que puntúa multiplica por dos.',r:'c',s:'▣',a:'#8a6d3b',b:'#6a522a'},
+    {n:'Cavendish',e:'X3 Mult',d:'Una probabilidad entre 1000 de destruirse al terminar la ronda.',r:'c',s:'❦',a:'#e5b93c',b:'#c19520'},
+    {n:'Mystic Summit',e:'+15 Mult',d:'Cuando no te quedan descartes.',r:'c',s:'▲',a:'#7a4fd0',b:'#5c38a8'},
+    {n:'Hologram',e:'X0,25 Mult',d:'Crece por cada carta que añades a tu mazo.',r:'p',s:'◈',a:'#2fc78a',b:'#1f9a69'},
+    {n:'The Duo',e:'X2 Mult',d:'Se activa si la mano contiene una pareja.',r:'r',s:'II',a:'#ff6a62',b:'#d1453d'},
+    {n:'Baron',e:'X1,5 Mult',d:'Por cada Rey que mantienes en la mano.',r:'r',s:'♚',a:'#c9303b',b:'#8e1f28'},
+    {n:'Blueprint',e:'Copia',d:'Copia la habilidad del joker que tiene a su derecha.',r:'r',s:'⌗',a:'#3a97ff',b:'#1f5fb8'},
+    {n:'Triboulet',e:'X2 Mult',d:'Cada Rey y Reina que puntúa multiplica por dos.',r:'l',s:'♛',a:'#b982ff',b:'#7f4ed1'},
+    {n:'Perkeo',e:'Clona',d:'Al salir de la tienda copia un consumible al azar.',r:'l',s:'✦',a:'#b982ff',b:'#5a35a0'}
+  ];
+  var RN={c:['Común','r-comun'],p:['Poco común','r-poco'],r:['Rara','r-raro'],l:['Legendaria','r-leg']};
+  var jg=$('jgrid'),jh='';
+  JOKERS.forEach(function(j){
+    jh+='<article class="joker" data-r="'+j.r+'"><div class="art" style="--a:'+j.a+';--b:'+j.b+'" aria-hidden="true">'+j.s+'</div>'
+      +'<span class="rar '+RN[j.r][1]+'">'+RN[j.r][0]+'</span><h3>'+j.n+'</h3><div class="eff">'+j.e+'</div><p>'+j.d+'</p></article>';
+  });
+  jg.innerHTML=jh;
+  Array.prototype.forEach.call(jg.children,function(el){tilt(el,8);});
+  var F=[['all','Todos'],['c','Comunes'],['p','Poco comunes'],['r','Raras'],['l','Legendarias']],fh='';
+  F.forEach(function(f,i){fh+='<button type="button" data-f="'+f[0]+'" aria-pressed="'+(i===0)+'">'+f[1]+'</button>';});
+  $('filters').innerHTML=fh;
+  $('filters').addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;
+    Array.prototype.forEach.call($('filters').children,function(x){x.setAttribute('aria-pressed',x===b);});
+    Array.prototype.forEach.call(jg.children,function(el){el.hidden=!(b.dataset.f==='all'||el.dataset.r===b.dataset.f);});
+  });
+})();
+</script>
+
+</html>
