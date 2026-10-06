@@ -1,0 +1,964 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Balatro Hub Wiki: jokers, cartas, cupones, ciegas y mecanicas en espanol.">
+<style>html{color-scheme:dark}body{margin:0}</style>
+<title>Balatro Hub Wiki</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;600;800&family=JetBrains+Mono:wght@500;700&family=Pixelify+Sans:wght@500;700&display=swap">
+<style>
+/* Layout: wiki de tres zonas. Barra superior con buscador, navegación lateral por categorías y artículo con infobox flotante a la derecha. */
+:root{
+  --bg:#08201c; --bg-2:#0c2924; --panel:#11362f; --panel-2:#17463c; --line:#2b5c50;
+  --ink:#f4ecd8; --ink-dim:#a6c0b4; --red:#ff5a52; --blue:#3a97ff; --gold:#f5be4f; --ok:#6ee7a0;
+  --card:#f6efde; --card-ink:#1b1b22; --suit-red:#c9303b;
+  --display:'Pixelify Sans','Courier New',monospace;
+  --body:'Bricolage Grotesque',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:76px}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.65 var(--body);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--display);font-weight:700;margin:0;line-height:1.1;text-wrap:balance}
+p{margin:0 0 14px}
+a{color:var(--blue);text-underline-offset:3px}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:4px}
+img{image-rendering:pixelated}
+.num{font-variant-numeric:tabular-nums}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;display:flex;align-items:center;gap:14px;padding:10px 16px;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.logo{font:700 1.15rem var(--display);letter-spacing:.04em;text-decoration:none;color:var(--ink);display:flex;align-items:center;gap:10px;white-space:nowrap}
+.logo i{width:20px;height:28px;background:var(--card);border-radius:4px;display:grid;place-items:center;color:var(--suit-red);font:700 13px var(--display);font-style:normal;transform:rotate(-8deg);box-shadow:2px 2px 0 #000}
+.logo b{color:var(--gold)}
+#menu{display:none;background:var(--panel);color:var(--ink);border:2px solid #000;border-radius:8px;width:40px;height:40px;font-size:1.2rem;cursor:pointer}
+.search{position:relative;flex:1;max-width:560px;margin-left:auto}
+#q{width:100%;padding:10px 14px;background:var(--panel);color:var(--ink);border:2px solid #000;border-radius:10px;font:500 .95rem var(--body)}
+#q::placeholder{color:var(--ink-dim)}
+#res{position:absolute;left:0;right:0;top:calc(100% + 6px);background:var(--panel);border:2px solid #000;border-radius:12px;box-shadow:0 8px 0 rgba(0,0,0,.5);max-height:min(70vh,520px);overflow:auto;display:none}
+#res.on{display:block}
+#res a{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:10px 14px;text-decoration:none;color:var(--ink);border-bottom:1px solid var(--line)}
+#res a:last-child{border-bottom:0}
+#res a:hover,#res a.sel{background:var(--panel-2)}
+#res small{color:var(--ink-dim);grid-column:1/-1;font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#res em{font:700 .65rem var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-style:normal;align-self:center}
+#res p{padding:14px;color:var(--ink-dim);margin:0}
+
+/* shell */
+.shell{display:grid;grid-template-columns:248px minmax(0,1fr);max-width:1320px;margin-inline:auto}
+#side{position:sticky;top:calc(61px + env(safe-area-inset-top,0px));align-self:start;height:calc(100vh - 61px);overflow:auto;padding:22px 12px 40px 16px;border-right:1px solid var(--line)}
+#side h4{margin:18px 10px 6px;font:700 .68rem var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim)}
+#side h4:first-child{margin-top:0}
+#side a{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 10px;border-radius:8px;text-decoration:none;color:var(--ink);font-size:.93rem}
+#side a:hover{background:var(--panel)}
+#side a[aria-current=page]{background:var(--panel-2);box-shadow:inset 3px 0 0 var(--gold);font-weight:600}
+#side a span{font:500 .72rem var(--mono);color:var(--ink-dim)}
+#main{padding:clamp(20px,4vw,44px) clamp(16px,4vw,48px) 80px;min-width:0}
+@media(max-width:900px){
+  .shell{grid-template-columns:1fr}
+  #menu{display:block}
+  #side{position:fixed;left:0;top:calc(61px + env(safe-area-inset-top,0px));bottom:0;width:min(300px,86vw);height:auto;background:var(--bg);z-index:25;transform:translateX(-102%);transition:transform .2s;border-right:2px solid #000;box-shadow:8px 0 0 rgba(0,0,0,.4)}
+  body.nav #side{transform:none}
+  .logo b{display:none}
+}
+
+/* article */
+.art{max-width:980px}
+.crumb{font:500 .78rem var(--mono);color:var(--ink-dim);margin-bottom:10px}
+.crumb a{color:var(--ink-dim)}
+.art h1{font-size:clamp(2rem,5vw,3rem);margin-bottom:6px}
+.sub{color:var(--ink-dim);font-size:1.02rem;margin-bottom:22px}
+.lead{font-size:1.1rem}
+.body h2{font-size:1.65rem;margin:38px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--line)}
+.body h3{font-size:1.2rem;margin:24px 0 8px}
+.body ul,.body ol{padding-left:22px;margin:0 0 14px}
+.body li{margin-bottom:5px}
+.body code{font:500 .88em var(--mono);background:var(--panel);padding:1px 6px;border-radius:4px}
+.info{float:right;width:min(310px,100%);margin:0 0 20px 28px;background:var(--panel);border:2px solid #000;border-radius:12px;box-shadow:0 4px 0 #000;overflow:hidden}
+.info h3{margin:0;padding:12px 14px;background:var(--panel-2);font-size:1.15rem;text-align:center}
+.info .pic{display:grid;place-items:center;padding:18px;background:repeating-linear-gradient(135deg,var(--a,#17463c) 0 12px,var(--b,#11362f) 12px 24px)}
+.info .pic img{width:132px;height:132px;filter:drop-shadow(4px 4px 0 rgba(0,0,0,.45))}
+.info dl{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;margin:0;padding:14px;font-size:.9rem}
+.info dt{color:var(--ink-dim)}.info dd{margin:0;font-weight:600;text-align:right}
+@media(max-width:700px){.info{float:none;width:100%;margin:0 0 20px}}
+#toc{background:var(--bg-2);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:0 0 22px;display:inline-block;min-width:min(260px,100%)}
+#toc:empty{display:none}
+#toc b{display:block;font:700 .72rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+#toc ol{margin:0;padding-left:20px;font-size:.93rem}
+.tw{overflow-x:auto;border:2px solid #000;border-radius:12px;background:var(--panel);margin:0 0 18px;clear:both}
+table{border-collapse:collapse;width:100%;font-size:.93rem}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:700 .7rem var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim);background:var(--panel-2);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:color-mix(in srgb,var(--panel-2) 55%,transparent)}
+tr.hl td{background:color-mix(in srgb,var(--gold) 22%,transparent)}
+td.n{font:500 .88rem var(--mono);white-space:nowrap}
+.c{color:var(--blue);font-weight:700}.m{color:var(--red);font-weight:700}.g{color:var(--gold);font-weight:700}
+td img.ji{width:36px;height:36px;display:block}
+td .nm{font-weight:700;color:var(--ink);text-decoration:none}
+td .nm:hover{text-decoration:underline}
+.rar{font:700 .64rem var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:4px;border:1px solid #000;white-space:nowrap;display:inline-block}
+.rC{background:#7fb3ff;color:#001a3a}.rU{background:#6ee7a0;color:#00281a}.rR{background:#ff7a72;color:#3a0300}.rL{background:#c9a0ff;color:#240047}
+.pill{display:inline-block;font:600 .74rem var(--mono);padding:2px 8px;border-radius:999px;background:var(--bg);border:1px solid var(--line);margin:0 4px 4px 0;color:var(--ink-dim)}
+.warn{background:#3b3216;border:2px solid #000;border-left:6px solid var(--gold);border-radius:10px;padding:12px 16px;margin:0 0 20px;font-size:.93rem}
+.tools{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;align-items:center}
+.tools input[type=search],.tools select,select{padding:9px 12px;background:var(--bg);color:var(--ink);border:2px solid #000;border-radius:8px;font:500 .95rem var(--body)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{font:700 .78rem var(--mono);padding:8px 13px;border-radius:999px;border:2px solid #000;background:var(--panel);color:var(--ink);cursor:pointer}
+.chips button[aria-pressed=true]{background:var(--gold);color:#000}
+.count{font:500 .85rem var(--mono);color:var(--ink-dim);margin-left:auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px;margin-bottom:18px;clear:both}
+.tile{background:var(--panel);border:2px solid #000;border-radius:12px;padding:14px;box-shadow:0 4px 0 #000;display:grid;gap:8px;align-content:start;position:relative}
+.tile.hl{outline:3px solid var(--gold)}
+.tile h3{font-size:1.05rem;margin:0}
+.tile p{margin:0;font-size:.88rem;color:var(--ink-dim);line-height:1.5}
+.tile .pic{height:84px;display:grid;place-items:center;border-radius:8px;background:var(--bg)}
+.tile .pic img{height:72px;width:72px}
+.tile .pic img.deck{width:52px;height:74px;transform:rotate(-4deg);filter:drop-shadow(3px 3px 0 rgba(0,0,0,.5))}
+.tile .top2{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.tile .cost{font:700 .85rem var(--mono);color:var(--gold)}
+.roman{width:100%;height:96px;border-radius:8px;border:2px solid #000;display:grid;place-items:center;font:700 2.2rem var(--display);color:#fff;text-shadow:3px 3px 0 #000;background:repeating-linear-gradient(135deg,var(--a) 0 10px,var(--b) 10px 20px)}
+.chip{display:inline-block;width:22px;height:22px;border-radius:50%;border:3px dashed rgba(255,255,255,.7);outline:2px solid #000;vertical-align:middle;margin-right:8px}
+.pc{width:72px;aspect-ratio:5/7;border:2px solid #000;border-radius:8px;display:grid;place-items:center;font:700 1.5rem var(--display);color:var(--card-ink);box-shadow:3px 3px 0 rgba(0,0,0,.5);background:var(--card)}
+.pc.red{color:var(--suit-red)}
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;margin-bottom:18px}
+.sw{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;background:var(--panel);border:2px solid #000;border-radius:12px;padding:14px;box-shadow:0 4px 0 #000}
+.sw h3{margin:0 0 3px;font-size:1.05rem}.sw p{margin:0;font-size:.88rem;color:var(--ink-dim);line-height:1.45}
+.e-bonus{background:linear-gradient(#cfe3ff,#6fa8ff)}.e-mult{background:linear-gradient(#ffd0cc,#ff6f66)}
+.e-wild{background:conic-gradient(#ff6f66,#f5be4f,#6ee7a0,#3a97ff,#c9a0ff,#ff6f66)}
+.e-glass{background:linear-gradient(135deg,#e8fbff,#9fd8ee 40%,#e8fbff 60%,#9fd8ee);opacity:.92}
+.e-steel{background:linear-gradient(135deg,#d7dde6,#7f8a9b)}.e-stone{background:repeating-linear-gradient(45deg,#8c8c94 0 6px,#6f6f78 6px 12px)}
+.e-gold{background:linear-gradient(135deg,#ffe38a,#d9a31f)}.e-lucky{background:linear-gradient(135deg,#bff0cf,#47b97d)}
+.e-foil{background:linear-gradient(120deg,#f6efde,#bcd7ff,#f6efde)}.e-holo{background:linear-gradient(120deg,#ffd0f2,#bdd1ff,#ffd0f2)}
+.e-poly{background:linear-gradient(120deg,#ffb3b3,#ffe3a1,#b9f5c5,#a9c9ff,#d9b3ff)}.e-neg{background:#15151b;color:#fff!important}
+.seal{width:22px;height:22px;border-radius:50%;border:2px solid #000;display:block}
+.pair{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:stretch;margin-bottom:12px}
+.pair .arrow{align-self:center;font:700 1.4rem var(--display);color:var(--gold)}
+.pair .tile{box-shadow:0 3px 0 #000}
+@media(max-width:700px){.pair{grid-template-columns:1fr}.pair .arrow{transform:rotate(90deg);justify-self:center}}
+.rel{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.rel a{display:flex;align-items:center;gap:10px;padding:10px;background:var(--panel);border:2px solid #000;border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600}
+.rel img{width:36px;height:36px}
+
+/* portal */
+.hero{position:relative;overflow:hidden;border:2px solid #000;border-radius:16px;box-shadow:0 6px 0 #000;margin-bottom:28px}
+#swirl{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,32,28,.94),rgba(8,32,28,.55) 60%,rgba(8,32,28,.3))}
+.hero>div{position:relative;z-index:1;padding:clamp(22px,4vw,44px)}
+.hero h1{font-size:clamp(2.2rem,6vw,3.8rem);margin-bottom:12px}
+.hero h1 em{font-style:normal;color:var(--red);text-shadow:3px 3px 0 #000}
+.hero p{max-width:52ch;font-size:1.08rem}
+.facts{display:flex;flex-wrap:wrap;gap:10px 28px;margin-top:18px}
+.facts b{font:700 1.8rem var(--display);color:var(--gold);display:block;line-height:1}
+.facts span{font:500 .72rem var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim)}
+.cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-bottom:30px}
+.cat{display:grid;grid-template-columns:56px 1fr;gap:14px;align-items:center;padding:14px;background:var(--panel);border:2px solid #000;border-radius:12px;box-shadow:0 4px 0 #000;text-decoration:none;color:var(--ink);transition:transform .1s}
+.cat:hover{transform:translateY(-2px)}
+.cat .ico{width:56px;height:56px;border-radius:10px;border:2px solid #000;display:grid;place-items:center;font:700 1.6rem var(--display);color:#fff;text-shadow:2px 2px 0 #000}
+.cat .ico img{width:44px;height:44px}
+.cat b{display:block;font:700 1.05rem var(--display)}
+.cat span{font-size:.85rem;color:var(--ink-dim);line-height:1.35;display:block}
+.two{display:grid;grid-template-columns:1.3fr 1fr;gap:22px}
+@media(max-width:800px){.two{grid-template-columns:1fr}}
+.box{background:var(--panel);border:2px solid #000;border-radius:12px;padding:18px 20px;box-shadow:0 4px 0 #000}
+.box h2{font-size:1.3rem;margin-bottom:10px;border:0;padding:0}
+.box ul{margin:0;padding-left:20px}
+.box li{margin-bottom:6px;font-size:.95rem}
+
+/* simulator */
+.sim{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start;clear:both}
+@media(max-width:900px){.sim{grid-template-columns:1fr}}
+.ctrl{display:grid;gap:16px}
+.ctrl label,.ctrl .lbl{display:flex;justify-content:space-between;gap:10px;font:700 .75rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:6px}
+.ctrl output{color:var(--gold)}
+.ctrl select{width:100%}
+input[type=range]{width:100%;accent-color:var(--red);height:26px}
+.pal{display:flex;flex-wrap:wrap;gap:8px}
+.pal button{font:600 .82rem var(--body);padding:7px 11px;border-radius:8px;border:2px solid #000;background:var(--panel-2);color:var(--ink);cursor:pointer}
+.pal button small{display:block;font:500 .66rem var(--mono);color:var(--ink-dim)}
+.slots{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:8px}
+.slot{min-height:88px;border:2px dashed var(--line);border-radius:10px;display:grid;place-items:center;padding:6px;font-size:.7rem;color:var(--ink-dim);text-align:center}
+.slot.full{border:2px solid #000;background:var(--panel-2);color:var(--ink);grid-template-rows:1fr auto;gap:4px}
+.slot .jn{font:700 .78rem/1.1 var(--display)}.slot .jd{font:500 .62rem var(--mono);color:var(--gold);display:block;margin-top:3px}
+.slot .mv{display:flex;gap:2px;width:100%}
+.slot .mv button{flex:1;background:var(--bg);color:var(--ink);border:1px solid #000;border-radius:4px;cursor:pointer;font:700 .75rem var(--mono);padding:2px 0}
+.slot .mv button:disabled{opacity:.3}
+@media(max-width:480px){.slots{grid-template-columns:repeat(3,1fr)}}
+.board{background:#0b1e1b;border:2px solid #000;border-radius:14px;padding:20px;box-shadow:0 5px 0 #000;display:grid;gap:16px}
+.calc{display:flex;justify-content:center;align-items:stretch;gap:8px}
+.calc .box2{min-width:100px;padding:8px 14px;border:2px solid #000;border-radius:10px;font:700 2rem var(--mono);text-align:center;box-shadow:0 3px 0 #000;font-variant-numeric:tabular-nums;color:#fff}
+.calc .chips2{background:var(--blue)}.calc .mult2{background:var(--red)}
+.calc .x{align-self:center;font:700 1.4rem var(--display);color:var(--ink-dim)}
+.big{text-align:center}.big small{font:500 .72rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-dim);display:block}
+.big b{font:700 clamp(2.2rem,6vw,3.4rem) var(--mono);color:var(--gold);line-height:1.1;font-variant-numeric:tabular-nums}
+.trace{margin:0;padding:0!important;list-style:none;display:grid;gap:6px;font:500 .78rem var(--mono)}
+.trace li{display:grid;grid-template-columns:1fr auto;gap:10px;padding:7px 10px;background:var(--panel);border-radius:6px;border-left:4px solid var(--line);margin:0}
+.trace li.c{border-left-color:var(--blue)}.trace li.m{border-left-color:var(--red)}.trace li.x{border-left-color:var(--gold)}
+.trace li.skip{opacity:.5}.trace span{color:var(--ink-dim)}
+.verdict{padding:12px 14px;border-radius:10px;border:2px solid #000;font-weight:600;display:grid;gap:8px}
+.verdict.win{background:#12402b}.verdict.lose{background:#42191d}
+.verdict .meter{height:10px;background:#000;border-radius:3px;overflow:hidden}.verdict .meter i{display:block;height:100%;background:var(--ok)}
+.verdict.lose .meter i{background:var(--red)}
+.hint{font-size:.82rem;color:var(--ink-dim);font-weight:400}
+button.link{background:none;border:0;color:var(--blue);font:600 .85rem var(--body);cursor:pointer;text-decoration:underline;padding:0;justify-self:start}
+.row2{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media(max-width:480px){.row2{grid-template-columns:1fr}}
+footer{border-top:1px solid var(--line);padding:28px 16px;color:var(--ink-dim);font-size:.82rem;text-align:center}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<header class="top">
+  <button id="menu" type="button" aria-label="Abrir menú de categorías" aria-expanded="false">☰</button>
+  <a class="logo" href="#inicio"><i>♠</i>BALATRO HUB <b>WIKI</b></a>
+  <div class="search">
+    <input id="q" type="search" placeholder="Buscar jokers, cartas, cupones…  ( / )" autocomplete="off" aria-label="Buscar en la wiki" aria-controls="res">
+    <div id="res" role="listbox"></div>
+  </div>
+</header>
+<div class="shell">
+  <nav id="side" aria-label="Categorías"></nav>
+  <main id="main" tabindex="-1"></main>
+</div>
+<footer>
+  Wiki de fans sin afiliación oficial. Balatro es una marca de LocalThunk y Playstack. Las ilustraciones son pixel art original hecho para esta página, no el arte del juego.<br>
+  Datos escritos a mano. Pueden contener errores: verifica en el juego antes de apoyarte en una cifra.
+</footer>
+
+<script>
+(function(){
+'use strict';
+var REDUCED=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function $(id){return document.getElementById(id);}
+function fmt(n){return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');}
+function slug(s){return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');}
+function hsh(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+
+/* ================= DATOS ================= */
+var RAR={C:'Común',U:'Poco común',R:'Rara',L:'Legendaria'};
+var JRAW=[
+'Joker|C|2|+4 de Mult.',
+'Greedy Joker|C|5|Las cartas de Diamantes que puntúan dan +3 de Mult.',
+'Lusty Joker|C|5|Las cartas de Corazones que puntúan dan +3 de Mult.',
+'Wrathful Joker|C|5|Las cartas de Picas que puntúan dan +3 de Mult.',
+'Gluttonous Joker|C|5|Las cartas de Tréboles que puntúan dan +3 de Mult.',
+'Jolly Joker|C|3|+8 de Mult si la mano contiene una Pareja.',
+'Zany Joker|C|4|+12 de Mult si la mano contiene un Trío.',
+'Mad Joker|C|4|+10 de Mult si la mano contiene una Doble pareja.',
+'Crazy Joker|C|4|+12 de Mult si la mano contiene una Escalera.',
+'Droll Joker|C|4|+10 de Mult si la mano contiene un Color.',
+'Sly Joker|C|3|+50 fichas si la mano contiene una Pareja.',
+'Wily Joker|C|4|+100 fichas si la mano contiene un Trío.',
+'Clever Joker|C|4|+80 fichas si la mano contiene una Doble pareja.',
+'Devious Joker|C|4|+100 fichas si la mano contiene una Escalera.',
+'Crafty Joker|C|4|+80 fichas si la mano contiene un Color.',
+'Half Joker|C|5|+20 de Mult si la mano jugada tiene 3 cartas o menos.',
+'Credit Card|C|1|Permite endeudarte hasta -$20.',
+'Banner|C|5|+30 fichas por cada descarte restante.',
+'Mystic Summit|C|5|+15 de Mult cuando no quedan descartes.',
+'8 Ball|C|5|Cada 8 jugado tiene 1/4 de probabilidad de crear una carta de Tarot (si hay hueco).',
+'Misprint|C|4|Entre +0 y +23 de Mult al azar en cada mano.',
+'Raised Fist|C|5|Suma al Mult el doble del rango de la carta más baja que mantienes en la mano.',
+'Chaos the Clown|C|4|1 reroll gratis por tienda.',
+'Scary Face|C|4|Las figuras que puntúan dan +30 fichas.',
+'Abstract Joker|C|4|+3 de Mult por cada joker que tengas.',
+'Delayed Gratification|C|4|Ganas $2 por descarte restante si no descartaste nada en la ronda.',
+'Gros Michel|C|5|+15 de Mult. 1/6 de probabilidad de destruirse al final de la ronda.',
+'Even Steven|C|4|Las cartas pares (10, 8, 6, 4, 2) que puntúan dan +4 de Mult.',
+'Odd Todd|C|4|Las cartas impares (A, 9, 7, 5, 3) que puntúan dan +31 fichas.',
+'Scholar|C|4|Los Ases que puntúan dan +20 fichas y +4 de Mult.',
+'Business Card|C|4|Las figuras que puntúan tienen 1/2 de probabilidad de dar $2.',
+'Supernova|C|5|Suma al Mult las veces que has jugado esa mano en la partida.',
+'Ride the Bus|C|6|+1 de Mult por cada mano consecutiva sin una figura que puntúe. Se reinicia al puntuar una figura.',
+'Egg|C|4|+$3 de valor de venta al final de cada ronda.',
+'Runner|C|5|Gana +15 fichas si la mano contiene una Escalera.',
+'Ice Cream|C|5|+100 fichas. Pierde 5 fichas por cada mano jugada.',
+'Splash|C|3|Todas las cartas jugadas cuentan para puntuar.',
+'Blue Joker|C|5|+2 fichas por cada carta que queda en el mazo.',
+'Faceless Joker|C|4|Ganas $5 si descartas 3 o más figuras a la vez.',
+'Green Joker|C|4|+1 de Mult por mano jugada. -1 de Mult por cada descarte.',
+'Superposition|C|4|Crea una carta de Tarot si la mano contiene un As y una Escalera.',
+'To Do List|C|4|Ganas $4 si la mano jugada es la indicada. Cambia al final de la ronda.',
+'Cavendish|C|4|X3 de Mult. 1/1000 de probabilidad de destruirse al final de la ronda.',
+'Red Card|C|5|+3 de Mult cada vez que saltas un sobre.',
+'Square Joker|C|4|Gana +4 fichas si la mano jugada tiene exactamente 4 cartas.',
+'Photograph|C|5|La primera figura que puntúa da X2 de Mult.',
+'Reserved Parking|C|6|Cada figura que mantienes en la mano tiene 1/2 de probabilidad de dar $1.',
+'Mail-In Rebate|C|4|Ganas $5 por cada carta del rango indicado que descartes. El rango cambia cada ronda.',
+'Hallucination|C|4|Al abrir un sobre, 1/2 de probabilidad de crear una carta de Tarot.',
+'Fortune Teller|C|6|+1 de Mult por cada carta de Tarot usada en la partida.',
+'Juggler|C|4|+1 al tamaño de mano.',
+'Drunkard|C|4|+1 descarte por ronda.',
+'Walkie Talkie|C|4|Cada 10 o 4 que puntúa da +10 fichas y +4 de Mult.',
+'Golden Joker|C|6|Ganas $4 al final de cada ronda.',
+'Smiley Face|C|4|Las figuras que puntúan dan +5 de Mult.',
+'Golden Ticket|C|5|Las cartas de Oro que puntúan dan $4.',
+'Swashbuckler|C|4|Suma al Mult el valor de venta de tus otros jokers.',
+'Hanging Chad|C|4|Repite 2 veces más la primera carta que puntúa.',
+'Shoot the Moon|C|5|Cada Reina que mantienes en la mano da +13 de Mult.',
+'Popcorn|C|5|+20 de Mult. Pierde 4 de Mult por cada ronda jugada.',
+'Riff-Raff|C|6|Al elegir una ciega, crea 2 jokers comunes (si hay hueco).',
+'Joker Stencil|U|8|X1 de Mult por cada hueco de joker vacío.',
+'Four Fingers|U|7|Colores y Escaleras se pueden hacer con 4 cartas.',
+'Mime|U|5|Repite las habilidades de las cartas que mantienes en la mano.',
+'Ceremonial Dagger|U|6|Al elegir una ciega, destruye el joker de su derecha y suma el doble de su valor de venta al Mult de forma permanente.',
+'Marble Joker|U|6|Añade una carta de Piedra a tu mazo al elegir una ciega.',
+'Loyalty Card|U|5|X4 de Mult cada 6 manos jugadas.',
+'Steel Joker|U|7|X0,2 de Mult por cada carta de Acero en tu mazo completo.',
+'Burglar|U|6|Al elegir una ciega, +3 manos y pierdes todos los descartes.',
+'Blackboard|U|6|X3 de Mult si todas las cartas que mantienes en la mano son Picas o Tréboles.',
+'Space Joker|U|5|1/4 de probabilidad de subir un nivel la mano jugada.',
+'Card Sharp|U|6|X3 de Mult si la mano jugada ya se jugó antes en esta ronda.',
+'Madness|U|7|Al elegir una ciega, gana X0,5 de Mult y destruye un joker al azar.',
+'Vampire|U|7|Gana X0,1 de Mult por cada carta mejorada que puntúa y le quita la mejora.',
+'Hologram|U|7|Gana X0,25 de Mult cada vez que añades una carta a tu mazo.',
+'Midas Mask|U|7|Las figuras jugadas que puntúan se convierten en cartas de Oro.',
+'Luchador|U|5|Véndelo para desactivar la ciega jefe actual.',
+'Gift Card|U|6|Suma +$1 de valor de venta a cada joker y consumible al final de la ronda.',
+'Turtle Bean|U|6|+5 al tamaño de mano. Baja 1 cada ronda.',
+'Erosion|U|6|+4 de Mult por cada carta que le falte a tu mazo respecto al tamaño inicial.',
+'To the Moon|U|5|+$1 de interés extra por cada $5 al final de la ronda.',
+'Stone Joker|U|6|+25 fichas por cada carta de Piedra en tu mazo completo.',
+'Lucky Cat|U|6|Gana X0,25 de Mult cada vez que una carta Suerte se activa con éxito.',
+'Bull|U|6|+2 fichas por cada $1 que tengas.',
+'Diet Cola|U|6|Véndelo para crear una Etiqueta doble gratis.',
+'Trading Card|U|6|Si el primer descarte de la ronda es una sola carta, se destruye y ganas $3.',
+'Flash Card|U|5|Gana +2 de Mult por cada reroll en la tienda.',
+'Spare Trousers|U|6|Gana +2 de Mult si la mano jugada contiene una Doble pareja.',
+'Ramen|U|6|X2 de Mult. Pierde X0,01 por cada carta descartada.',
+'Seltzer|U|6|Repite todas las cartas jugadas durante las próximas 10 manos.',
+'Castle|U|6|Gana +3 fichas por cada carta del palo indicado que descartes. El palo cambia cada ronda.',
+'Acrobat|U|6|X3 de Mult en la última mano de la ronda.',
+'Sock and Buskin|U|6|Repite todas las figuras jugadas.',
+'Troubadour|U|6|+2 al tamaño de mano, -1 mano por ronda.',
+'Certificate|U|6|Al empezar la ronda, añade a tu mano una carta aleatoria con un sello aleatorio.',
+'Smeared Joker|U|7|Corazones y Diamantes cuentan como el mismo palo. Picas y Tréboles también.',
+'Throwback|U|6|X0,25 de Mult por cada ciega saltada en la partida.',
+'Rough Gem|U|7|Los Diamantes jugados que puntúan dan $1.',
+'Bloodstone|U|7|1/2 de probabilidad de que los Corazones jugados que puntúan den X1,5 de Mult.',
+'Arrowhead|U|7|Las Picas jugadas que puntúan dan +50 fichas.',
+'Onyx Agate|U|7|Los Tréboles jugados que puntúan dan +7 de Mult.',
+'Glass Joker|U|6|Gana X0,75 de Mult por cada carta de Cristal destruida.',
+'Showman|U|5|Joker, Tarot, Planeta y Espectral pueden aparecer varias veces.',
+'Flower Pot|U|6|X3 de Mult si la mano que puntúa tiene un Diamante, un Trébol, un Corazón y una Pica.',
+'Merry Andy|U|7|+3 descartes. -1 al tamaño de mano.',
+'Oops! All 6s|U|4|Duplica todas las probabilidades indicadas.',
+'The Idol|U|6|Cada carta jugada del rango y palo indicados da X2 de Mult. Cambia cada ronda.',
+'Seeing Double|U|6|X2 de Mult si la mano tiene un Trébol que puntúa y una carta de otro palo que puntúa.',
+'Matador|U|7|Ganas $8 si la mano jugada activa la habilidad de la ciega jefe.',
+'Satellite|U|6|Ganas $1 al final de la ronda por cada planeta distinto usado en la partida.',
+'Shortcut|U|7|Permite Escaleras con huecos de 1 rango.',
+'Cloud 9|U|7|Ganas $1 al final de la ronda por cada 9 en tu mazo completo.',
+'Rocket|U|6|Ganas $1 al final de la ronda. La cantidad sube $2 al derrotar una ciega jefe.',
+'Bootstraps|U|7|+2 de Mult por cada $5 que tengas.',
+'Mr. Bones|U|5|Evita que pierdas si llegas al 25% de la puntuación requerida. Se destruye al usarse.',
+'Hack|U|6|Repite cada 2, 3, 4 o 5 jugado.',
+'Dusk|U|5|Repite todas las cartas jugadas en la última mano de la ronda.',
+'Cartomancer|U|6|Crea una carta de Tarot al empezar cada ciega (si hay hueco).',
+'Astronomer|U|8|Las cartas Planeta y los sobres Celestiales de la tienda son gratis.',
+'Sixth Sense|U|6|Si la primera mano de la ronda es un solo 6, se destruye y creas una carta Espectral.',
+'Constellation|U|6|Gana X0,1 de Mult cada vez que usas una carta Planeta.',
+'Hiker|U|5|Cada carta jugada gana permanentemente +5 fichas.',
+'Séance|U|6|Si la mano jugada es una Escalera de color, crea una carta Espectral aleatoria.',
+'Pareidolia|U|5|Todas las cartas cuentan como figuras.',
+'Fibonacci|U|8|Cada As, 2, 3, 5 u 8 que puntúa da +8 de Mult.',
+'DNA|R|8|Si la primera mano de la ronda es una sola carta, añade una copia permanente a tu mazo y la roba.',
+'Baron|R|8|Cada Rey que mantienes en la mano da X1,5 de Mult.',
+'Obelisk|R|8|Gana X0,2 de Mult por cada mano consecutiva sin jugar tu mano más jugada.',
+'Baseball Card|R|8|Los jokers poco comunes dan X1,5 de Mult cada uno.',
+'Ancient Joker|R|8|Cada carta jugada del palo indicado da X1,5 de Mult. El palo cambia cada ronda.',
+'Campfire|R|9|Gana X0,25 de Mult por cada carta vendida. Se reinicia al derrotar una ciega jefe.',
+'Blueprint|R|10|Copia la habilidad del joker de su derecha.',
+'Wee Joker|R|8|Gana +8 fichas cada vez que puntúa un 2.',
+'Hit the Road|R|8|Gana X0,5 de Mult por cada Jota descartada en la ronda.',
+'The Duo|R|8|X2 de Mult si la mano contiene una Pareja.',
+'The Trio|R|8|X3 de Mult si la mano contiene un Trío.',
+'The Family|R|8|X4 de Mult si la mano contiene un Póker.',
+'The Order|R|8|X3 de Mult si la mano contiene una Escalera.',
+'The Tribe|R|8|X2 de Mult si la mano contiene un Color.',
+'Stuntman|R|7|+250 fichas. -2 al tamaño de mano.',
+'Invisible Joker|R|8|Tras 2 rondas, véndelo para duplicar un joker al azar.',
+'Brainstorm|R|10|Copia la habilidad del joker de más a la izquierda.',
+'Burnt Joker|R|8|Sube de nivel la primera mano que descartes cada ronda.',
+'Vagabond|R|8|Crea una carta de Tarot si juegas una mano con $4 o menos.',
+'Driver\'s License|R|7|X3 de Mult si tienes al menos 16 cartas mejoradas en tu mazo.',
+'Canio|L|20|Gana X1 de Mult cada vez que se destruye una figura.',
+'Triboulet|L|20|Los Reyes y Reinas que puntúan dan X2 de Mult.',
+'Yorick|L|20|Gana X1 de Mult cada 23 cartas descartadas.',
+'Chicot|L|20|Desactiva la habilidad de todas las ciegas jefe.',
+'Perkeo|L|20|Al terminar la tienda, crea una copia Negativa de un consumible al azar.'
+];
+var JOKERS=JRAW.map(function(l){var p=l.split('|');return{n:p[0],r:p[1],c:+p[2],e:p[3],id:'joker-'+slug(p[0])};});
+var JBY={};JOKERS.forEach(function(j){JBY[j.id]=j;});
+
+var HANDS=[
+ {n:'Carta alta',c:5,m:1,lc:10,lm:1,p:'Plutón',id:'high'},
+ {n:'Pareja',c:10,m:2,lc:15,lm:1,p:'Mercurio',id:'pair'},
+ {n:'Doble pareja',c:20,m:2,lc:20,lm:1,p:'Urano',id:'two'},
+ {n:'Trío',c:30,m:3,lc:20,lm:2,p:'Venus',id:'three'},
+ {n:'Escalera',c:30,m:4,lc:30,lm:3,p:'Saturno',id:'straight'},
+ {n:'Color',c:35,m:4,lc:15,lm:2,p:'Júpiter',id:'flush'},
+ {n:'Full',c:40,m:4,lc:25,lm:2,p:'Tierra',id:'full'},
+ {n:'Póker',c:60,m:7,lc:30,lm:3,p:'Marte',id:'four'},
+ {n:'Escalera de color',c:100,m:8,lc:40,lm:4,p:'Neptuno',id:'sf'},
+ {n:'Repóker',c:120,m:12,lc:35,lm:3,p:'Planeta X',id:'five',s:1},
+ {n:'Full de color',c:140,m:14,lc:40,lm:4,p:'Ceres',id:'fh',s:1},
+ {n:'Color de repóker',c:160,m:16,lc:50,lm:3,p:'Eris',id:'ff',s:1}
+];
+var HBY={};HANDS.forEach(function(h){HBY[h.id]=h;});
+var HAS_PAIR={pair:1,two:1,three:1,full:1,four:1,five:1,fh:1,ff:1},HAS_THREE={three:1,full:1,four:1,five:1,fh:1,ff:1};
+
+var TAROT=[
+ ['El Loco','0','Crea la última carta de Tarot o Planeta que usaste (no El Loco).'],
+ ['El Mago','I','Convierte hasta 2 cartas seleccionadas en cartas Suerte.'],
+ ['La Suma Sacerdotisa','II','Crea hasta 2 cartas Planeta al azar (si hay hueco).'],
+ ['La Emperatriz','III','Convierte hasta 2 cartas seleccionadas en cartas de Multiplicador.'],
+ ['El Emperador','IV','Crea hasta 2 cartas de Tarot al azar (si hay hueco).'],
+ ['El Hierofante','V','Convierte hasta 2 cartas seleccionadas en cartas Bonus.'],
+ ['Los Enamorados','VI','Convierte 1 carta seleccionada en carta Comodín.'],
+ ['El Carro','VII','Convierte 1 carta seleccionada en carta de Acero.'],
+ ['La Justicia','VIII','Convierte 1 carta seleccionada en carta de Cristal.'],
+ ['El Ermitaño','IX','Duplica tu dinero (máximo +$20).'],
+ ['La Rueda de la Fortuna','X','1/4 de probabilidad de añadir Foil, Holográfica o Policroma a un joker al azar.'],
+ ['La Fuerza','XI','Sube 1 el rango de hasta 2 cartas seleccionadas.'],
+ ['El Colgado','XII','Destruye hasta 2 cartas seleccionadas.'],
+ ['La Muerte','XIII','Selecciona 2 cartas: la de la izquierda se convierte en copia de la de la derecha.'],
+ ['La Templanza','XIV','Te da el valor de venta total de tus jokers (máximo $50).'],
+ ['El Diablo','XV','Convierte 1 carta seleccionada en carta de Oro.'],
+ ['La Torre','XVI','Convierte 1 carta seleccionada en carta de Piedra.'],
+ ['La Estrella','XVII','Convierte hasta 3 cartas seleccionadas en Diamantes.'],
+ ['La Luna','XVIII','Convierte hasta 3 cartas seleccionadas en Tréboles.'],
+ ['El Sol','XIX','Convierte hasta 3 cartas seleccionadas en Corazones.'],
+ ['El Juicio','XX','Crea un joker aleatorio (si hay hueco).'],
+ ['El Mundo','XXI','Convierte hasta 3 cartas seleccionadas en Picas.']
+];
+var SPEC=[
+ ['Familiar','Destruye 1 carta al azar de tu mano y añade 3 figuras mejoradas aleatorias.'],
+ ['Grim','Destruye 1 carta al azar de tu mano y añade 2 Ases mejorados aleatorios.'],
+ ['Incantation','Destruye 1 carta al azar de tu mano y añade 4 cartas numeradas mejoradas aleatorias.'],
+ ['Talisman','Añade un Sello de oro a 1 carta seleccionada.'],
+ ['Aura','Añade Foil, Holográfica o Policroma a 1 carta seleccionada.'],
+ ['Wraith','Crea un joker raro al azar y pone tu dinero a $0.'],
+ ['Sigil','Convierte todas las cartas de tu mano a un único palo aleatorio.'],
+ ['Ouija','Convierte todas las cartas de tu mano a un único rango aleatorio. -1 al tamaño de mano.'],
+ ['Ectoplasm','Añade Negativo a un joker al azar. -1 al tamaño de mano.'],
+ ['Immolate','Destruye 5 cartas al azar de tu mano y ganas $20.'],
+ ['Ankh','Crea una copia de un joker al azar y destruye los demás.'],
+ ['Deja Vu','Añade un Sello rojo a 1 carta seleccionada.'],
+ ['Hex','Añade Policroma a un joker al azar y destruye los demás.'],
+ ['Trance','Añade un Sello azul a 1 carta seleccionada.'],
+ ['Medium','Añade un Sello morado a 1 carta seleccionada.'],
+ ['Cryptid','Crea 2 copias de 1 carta seleccionada.'],
+ ['The Soul','Crea un joker legendario (si hay hueco).'],
+ ['Black Hole','Sube 1 nivel todas las manos de póker.']
+];
+var VOUCH=[
+ ['Overstock','Overstock Plus','+1 hueco de carta en la tienda.','+1 hueco de carta en la tienda, otra vez.'],
+ ['Clearance Sale','Liquidation','Todo cuesta un 25% menos en la tienda.','Todo cuesta un 50% menos en la tienda.'],
+ ['Hone','Glow Up','Foil, Holográfica y Policroma aparecen 2 veces más a menudo.','Foil, Holográfica y Policroma aparecen 4 veces más a menudo.'],
+ ['Reroll Surplus','Reroll Glut','Los rerolls cuestan $2 menos.','Los rerolls cuestan $2 menos otra vez.'],
+ ['Crystal Ball','Omen Globe','+1 hueco de consumible.','Los Espectrales pueden aparecer en los sobres de Arcanos.'],
+ ['Telescope','Observatory','Los sobres Celestiales siempre traen el planeta de tu mano más jugada.','Los planetas en tu zona de consumibles dan X1,5 de Mult a su mano.'],
+ ['Grabber','Nacho Tong','+1 mano por ronda de forma permanente.','+1 mano por ronda más.'],
+ ['Wasteful','Recyclomancy','+1 descarte por ronda de forma permanente.','+1 descarte por ronda más.'],
+ ['Tarot Merchant','Tarot Tycoon','Las cartas de Tarot aparecen 2 veces más en la tienda.','Las cartas de Tarot aparecen 4 veces más en la tienda.'],
+ ['Planet Merchant','Planet Tycoon','Las cartas Planeta aparecen 2 veces más en la tienda.','Las cartas Planeta aparecen 4 veces más en la tienda.'],
+ ['Seed Money','Money Tree','El máximo de interés sube a $10.','El máximo de interés sube a $20.'],
+ ['Blank','Antimatter','No hace nada.','+1 hueco de joker.'],
+ ['Magic Trick','Illusion','Las cartas de juego se pueden comprar en la tienda.','Las cartas de juego de la tienda pueden traer mejora, edición o sello.'],
+ ['Hieroglyph','Petroglyph','-1 Ante. -1 mano por ronda.','-1 Ante otra vez. -1 descarte por ronda.'],
+ ['Director\'s Cut','Retcon','Puedes relanzar la ciega jefe 1 vez por Ante ($10).','Puedes relanzar la ciega jefe sin límite ($10 cada vez).'],
+ ['Paint Brush','Palette','+1 al tamaño de mano.','+1 al tamaño de mano más.']
+];
+var DECKS=[
+ ['Mazo rojo','+1 descarte por ronda.','#c9303b','#7e1b24'],
+ ['Mazo azul','+1 mano por ronda.','#2f6fd1','#1b3f7c'],
+ ['Mazo amarillo','Empiezas con $10 extra.','#e9b83a','#a67c12'],
+ ['Mazo verde','Al cerrar la ronda: $2 por mano y $1 por descarte sobrante. No hay interés.','#2f9b66','#1a5e3c'],
+ ['Mazo negro','+1 hueco de joker. -1 mano por ronda.','#34343e','#121216'],
+ ['Mazo mágico','Empiezas con el cupón Crystal Ball y 2 cartas El Loco.','#7a4fd0','#3d2478'],
+ ['Mazo nebulosa','Empiezas con el cupón Telescope. -1 hueco de consumible.','#3a5fd0','#1b2a70'],
+ ['Mazo fantasma','Los Espectrales pueden aparecer en la tienda. Empiezas con la carta Hex.','#c3cce2','#7b86a6'],
+ ['Mazo abandonado','El mazo inicial no tiene figuras.','#8a8068','#554e3d'],
+ ['Mazo ajedrezado','26 picas y 26 corazones, sin tréboles ni diamantes.','#c9303b','#1b1b22',1],
+ ['Mazo zodiaco','Empiezas con los cupones Tarot Merchant, Planet Merchant y Overstock.','#2a7f78','#164a46'],
+ ['Mazo pintado','+2 al tamaño de mano. -1 hueco de joker.','#e07b39','#9b4a1b'],
+ ['Mazo anaglifo','Al derrotar cada ciega jefe ganas una Etiqueta doble.','#c93a3a','#2f6fd1'],
+ ['Mazo plasma','Equilibra fichas y Mult al puntuar. Las ciegas piden el doble.','#d94fb8','#6a2f9c'],
+ ['Mazo errático','Los rangos y palos de todas las cartas son aleatorios.','#7a7a86','#33333c',1]
+];
+var STAKES=[
+ ['Blanco','#f4f4fb','Sin modificadores. Es la dificultad base.'],
+ ['Rojo','#e5484d','La ciega pequeña no da recompensa.'],
+ ['Verde','#2fc78a','Las puntuaciones requeridas suben más rápido en cada Ante.'],
+ ['Negro','#1b1b22','La tienda puede traer jokers Eternos (no se venden ni se destruyen).'],
+ ['Azul','#3a97ff','-1 descarte por ronda.'],
+ ['Morado','#9a5fd6','Las puntuaciones requeridas suben aún más rápido en cada Ante.'],
+ ['Naranja','#f08a2e','La tienda puede traer jokers Perecederos (se desactivan tras 5 rondas).'],
+ ['Oro','#f5be4f','La tienda puede traer jokers de Alquiler (cuestan $3 al final de cada ronda).']
+];
+var BASE={0:[300,800,2000,5000,11000,20000,35000,50000],1:[300,900,2600,8000,20000,36000,60000,100000],2:[300,1000,3200,9000,25000,60000,110000,200000]};
+var BOSS=[
+ ['The Hook','Descarta 2 cartas al azar de tu mano cada vez que juegas una mano.'],
+ ['The Ox','Jugar tu mano más jugada pone tu dinero a $0.'],
+ ['The House','La primera mano se roba boca abajo.'],
+ ['The Wall','Ciega extra grande (X4 la puntuación base).'],
+ ['The Wheel','1 de cada 7 cartas se roba boca abajo.'],
+ ['The Arm','Baja 1 nivel la mano de póker que juegues.'],
+ ['The Club','Todas las cartas de Tréboles están desactivadas.'],
+ ['The Fish','Las cartas se roban boca abajo después de jugar una mano.'],
+ ['The Psychic','Debes jugar 5 cartas.'],
+ ['The Goad','Todas las cartas de Picas están desactivadas.'],
+ ['The Water','Empiezas con 0 descartes.'],
+ ['The Window','Todas las cartas de Diamantes están desactivadas.'],
+ ['The Manacle','-1 al tamaño de mano.'],
+ ['The Eye','No puedes repetir tipo de mano en esta ronda.'],
+ ['The Mouth','Solo puedes jugar un tipo de mano en esta ronda.'],
+ ['The Plant','Todas las figuras están desactivadas.'],
+ ['The Serpent','Después de jugar o descartar, siempre robas 3 cartas.'],
+ ['The Pillar','Las cartas jugadas antes en este Ante están desactivadas.'],
+ ['The Needle','Solo puedes jugar 1 mano (X1 la puntuación base).'],
+ ['The Head','Todas las cartas de Corazones están desactivadas.'],
+ ['The Tooth','Pierdes $1 por cada carta jugada.'],
+ ['The Flint','Las fichas y el Mult base de cada mano se reducen a la mitad.'],
+ ['The Mark','Todas las figuras se roban boca abajo.']
+];
+var FINAL=[
+ ['Amber Acorn','Voltea y baraja todos tus jokers.'],
+ ['Verdant Leaf','Todas las cartas están desactivadas hasta que vendas 1 joker.'],
+ ['Violet Vessel','Ciega muy grande (X6 la puntuación base).'],
+ ['Crimson Heart','Un joker al azar se desactiva en cada mano.'],
+ ['Cerulean Bell','Fuerza que 1 carta esté siempre seleccionada.']
+];
+var TAGS=[
+ ['Etiqueta poco común','La próxima tienda trae un joker poco común gratis.'],
+ ['Etiqueta rara','La próxima tienda trae un joker raro gratis.'],
+ ['Etiqueta negativa','El próximo joker de edición base de la tienda es Negativo y gratis.'],
+ ['Etiqueta foil','El próximo joker de edición base de la tienda es Foil y gratis.'],
+ ['Etiqueta holográfica','El próximo joker de edición base de la tienda es Holográfico y gratis.'],
+ ['Etiqueta policroma','El próximo joker de edición base de la tienda es Policromo y gratis.'],
+ ['Etiqueta de inversión','Ganas $25 tras derrotar la próxima ciega jefe.'],
+ ['Etiqueta de cupón','Los jokers y consumibles iniciales de la próxima tienda son gratis.'],
+ ['Etiqueta de voucher','Añade un cupón a la próxima tienda.'],
+ ['Etiqueta de jefe','Relanza la ciega jefe de este Ante.'],
+ ['Etiqueta estándar','Te da un sobre Estándar Mega gratis.'],
+ ['Etiqueta de encanto','Te da un sobre de Arcanos Mega gratis.'],
+ ['Etiqueta meteoro','Te da un sobre Celestial Mega gratis.'],
+ ['Etiqueta bufón','Te da un sobre de Bufones Mega gratis.'],
+ ['Etiqueta etérea','Te da un sobre Espectral gratis.'],
+ ['Etiqueta de manos','Ganas $1 por cada mano jugada en esta partida.'],
+ ['Etiqueta de basura','Ganas $1 por cada descarte sin usar en esta partida.'],
+ ['Etiqueta doble','Copia la siguiente etiqueta que elijas (no otra doble).'],
+ ['Etiqueta de malabares','+3 al tamaño de mano en la próxima ronda.'],
+ ['Etiqueta D6','Los rerolls de la próxima tienda empiezan en $0.'],
+ ['Etiqueta de relleno','Crea hasta 2 jokers comunes (si hay hueco).'],
+ ['Etiqueta de velocidad','Ganas $5 por cada ciega saltada en esta partida.'],
+ ['Etiqueta orbital','Sube 3 niveles una mano de póker.'],
+ ['Etiqueta económica','Duplica tu dinero (máximo +$40).']
+];
+var PACKS=[
+ ['Sobre de Arcanos','Cartas de Tarot.','3 · elige 1','4 · elige 1','4 · elige 2'],
+ ['Sobre Celestial','Cartas Planeta.','3 · elige 1','5 · elige 1','5 · elige 2'],
+ ['Sobre Espectral','Cartas Espectrales.','2 · elige 1','4 · elige 1','4 · elige 2'],
+ ['Sobre Estándar','Cartas de juego, a menudo mejoradas.','3 · elige 1','5 · elige 1','5 · elige 2'],
+ ['Sobre de Bufones','Jokers.','2 · elige 1','4 · elige 1','4 · elige 2']
+];
+var ENH=[
+ ['Bonus','bonus','+30 fichas al puntuar.'],
+ ['Multiplicador','mult','+4 de Mult al puntuar.'],
+ ['Comodín','wild','Cuenta como cualquier palo.'],
+ ['Cristal','glass','X2 de Mult. 1/4 de probabilidad de romperse al puntuar.'],
+ ['Acero','steel','X1,5 de Mult mientras la mantienes en la mano.'],
+ ['Piedra','stone','+50 fichas. No tiene rango ni palo y siempre puntúa.'],
+ ['Oro','gold','Ganas $3 si la tienes en la mano al final de la ronda.'],
+ ['Suerte','lucky','1/5 de probabilidad de +20 de Mult. 1/15 de probabilidad de $20.']
+];
+var SEALS=[
+ ['Sello de oro','#f5be4f','Ganas $3 cuando la carta se juega y puntúa.'],
+ ['Sello rojo','#e5484d','Repite la carta una vez.'],
+ ['Sello azul','#3a97ff','Crea el planeta de tu última mano jugada si la tienes en la mano al final de la ronda.'],
+ ['Sello morado','#9a5fd6','Crea una carta de Tarot cuando se descarta.']
+];
+var EDIT=[
+ ['Foil','foil','+50 fichas.'],
+ ['Holográfica','holo','+10 de Mult.'],
+ ['Policroma','poly','X1,5 de Mult.'],
+ ['Negativa','neg','+1 hueco de joker. En un consumible, +1 hueco de consumible.']
+];
+
+/* ================= SPRITES ================= */
+var OL='#1a1020',GOLD='#f5be4f';
+function mk(w,h){var c=document.createElement('canvas');c.width=w;c.height=h;return c;}
+function dot(g,x,y,c){g.fillStyle=c;g.fillRect(Math.floor(x),Math.floor(y),1,1);}
+function rect(g,x,y,w,h,c){g.fillStyle=c;g.fillRect(x,y,w,h);}
+function disc(g,cx,cy,rx,ry,c,fn){for(var y=Math.floor(cy-ry);y<=Math.ceil(cy+ry);y++)for(var x=Math.floor(cx-rx);x<=Math.ceil(cx+rx);x++){var dx=(x+.5-cx)/rx,dy=(y+.5-cy)/ry;if(dx*dx+dy*dy<=1)dot(g,x,y,fn?fn(x,y):c);}}
+function curve(S,C,E,n){var p=[];for(var i=0;i<=n;i++){var t=i/n,u=1-t;p.push([u*u*S[0]+2*u*t*C[0]+t*t*E[0],u*u*S[1]+2*u*t*C[1]+t*t*E[1],t]);}return p;}
+var HORNS=[[[12,13],[4,13],[4,5]],[[20,13],[28,13],[28,5]],[[16,11],[15,6],[16,2]]];
+function jester(o){
+  var c=mk(32,32),g=c.getContext('2d'),a=o.a,b=o.b,skin=o.skin||'#f4dcb4',sh=o.sh||'#d7b283',k;
+  for(k=0;k<4;k++)disc(g,10+k*4,27,3.4,4,OL);
+  HORNS.forEach(function(h){curve(h[0],h[1],h[2],22).forEach(function(p){var r=4.2-1.9*p[2];disc(g,p[0],p[1],r,r,OL);});disc(g,h[2][0],h[2][1],3.3,3.3,OL);});
+  disc(g,16,17,9,9,OL);
+  for(k=0;k<4;k++)disc(g,10+k*4,27,2.4,3,k%2?a:b);
+  HORNS.forEach(function(h){curve(h[0],h[1],h[2],22).forEach(function(p){var r=3.2-1.9*p[2];disc(g,p[0],p[1],r,r,Math.floor(p[2]*7)%2?b:a);});disc(g,h[2][0],h[2][1],2.3,2.3,GOLD);dot(g,h[2][0]-1,h[2][1]-1,'#fff3c4');});
+  disc(g,16,17,8,8,skin,function(x,y){if(y<=14)return(((x>>1)+(y>>1))%2)?a:b;if(y===15)return OL;return(x+y>=34)?sh:skin;});
+  if(o.beard){for(var y=21;y<=28;y++){var hw=Math.max(2,Math.round(7-(y-21)*.7));rect(g,16-hw,y,hw*2,1,'#ecebf2');}}
+  else{rect(g,11,21,2,1,'#f08a8a');rect(g,20,21,2,1,'#f08a8a');}
+  if(o.glass){rect(g,11,16,5,5,OL);rect(g,17,16,5,5,OL);rect(g,16,17,1,1,OL);rect(g,12,17,3,3,o.glass);rect(g,18,17,3,3,o.glass);rect(g,13,18,1,2,OL);rect(g,19,18,1,2,OL);}
+  else{rect(g,12,17,3,3,'#fff');rect(g,18,17,3,3,'#fff');rect(g,13,18,1,2,OL);rect(g,19,18,1,2,OL);}
+  dot(g,16,20,'#e0a37b');
+  if(o.m==='grin'){rect(g,12,22,9,2,'#7a1220');rect(g,12,22,9,1,'#fff');}
+  else{dot(g,12,22,OL);dot(g,20,22,OL);rect(g,13,23,7,1,OL);}
+  if(o.acc==='crown'){rect(g,10,8,12,5,OL);rect(g,14,5,4,3,OL);rect(g,11,9,10,3,GOLD);rect(g,11,7,2,2,GOLD);rect(g,15,6,2,3,GOLD);rect(g,19,7,2,2,GOLD);dot(g,16,10,'#e5484d');dot(g,12,10,'#3a97ff');dot(g,20,10,'#3a97ff');}
+  if(o.acc==='star'){[[16,10],[15,11],[16,11],[17,11],[16,12]].forEach(function(p){dot(g,p[0],p[1],GOLD);});}
+  if(o.acc==='duo'){[[12,11],[20,11]].forEach(function(p){dot(g,p[0],p[1],'#fff');dot(g,p[0]-1,p[1],'#fff');dot(g,p[0]+1,p[1],'#fff');dot(g,p[0],p[1]-1,'#fff');dot(g,p[0],p[1]+1,'#fff');});}
+  if(o.acc==='pennant'){rect(g,3,13,1,17,'#6b4a2b');rect(g,4,14,4,3,'#3a97ff');rect(g,4,17,2,1,'#3a97ff');}
+  if(o.acc==='frame'){g.fillStyle=GOLD;g.fillRect(0,0,32,2);g.fillRect(0,30,32,2);g.fillRect(0,0,2,32);g.fillRect(30,0,2,32);g.fillStyle=OL;g.fillRect(2,2,28,1);g.fillRect(2,29,28,1);g.fillRect(2,2,1,28);g.fillRect(29,2,1,28);}
+  g.globalCompositeOperation='source-atop';
+  if(o.grid){g.fillStyle='rgba(255,255,255,.32)';for(var i=0;i<32;i+=4){g.fillRect(i,0,1,32);g.fillRect(0,i,32,1);}}
+  if(o.scan){g.fillStyle='rgba(0,255,220,.22)';for(i=0;i<32;i+=2)g.fillRect(0,i,32,1);}
+  g.globalCompositeOperation='source-over';
+  return c;
+}
+var PAIRS=[['#d9473f','#8e2a24'],['#2f6fd1','#f4f4fb'],['#7a4fd0','#3d2478'],['#2fc78a','#17775a'],['#e5b93c','#a67c12'],['#ff8a3d','#9b4a1b'],['#d94fb8','#6a2f9c'],['#2b2b33','#c9303b'],['#3a97ff','#1b3f7c'],['#8a6d3b','#4e3a1d']];
+var OVR={'Blueprint':{a:'#2f6fd1',b:'#1b3f7c',glass:'#bfe3ff',grid:1,skin:'#cfe3ff',sh:'#9fc3f2',acc:null},'Hologram':{a:'#2fc78a',b:'#17775a',glass:'#9ffcf0',scan:1,skin:'#c9f2e4',sh:'#8fd0bb',acc:null},'Photograph':{a:'#8a6d3b',b:'#4e3a1d',acc:'frame',skin:'#e9d2a9',sh:'#c7a874'},'Perkeo':{a:'#5a35a0',b:'#2fc7b0',beard:1,acc:null},'Joker':{a:'#d9473f',b:'#8e2a24',m:'grin',acc:null},'Cavendish':{a:'#f2cf3a',b:'#c19520',glass:'#222',m:'grin',acc:null},'Brainstorm':{a:'#d94fb8',b:'#6a2f9c',grid:1,glass:'#ffd0f2',acc:null}};
+function jspec(j){
+  var h=hsh(j.n),p=PAIRS[h%PAIRS.length],accs=['star','duo','pennant','frame','crown'];
+  var s={a:p[0],b:p[1],m:(h>>8)%2?'grin':'smile',acc:j.r==='L'?'crown':(j.r==='R'?accs[(h>>4)%5]:((h>>4)%3===0?accs[(h>>6)%4]:null)),glass:(h>>10)%5===0?'#9ffcf0':undefined,beard:(h>>12)%8===0};
+  var o=OVR[j.n];if(o)for(var k in o)s[k]=o[k];
+  return s;
+}
+var URLC={};
+function jurl(j){return URLC[j.id]||(URLC[j.id]=jester(jspec(j)).toDataURL());}
+var PL={'Plutón':{b:'#c8a98a',d:'#8a6e57',l:'#e9d6bf',r:5.2},'Mercurio':{b:'#9a9aa6',d:'#62626e',l:'#cfcfd8',r:5.4},'Urano':{b:'#7fe3e8',d:'#3fa7b4',l:'#c9fbfd',r:6},'Venus':{b:'#e9b868',d:'#b27a38',l:'#fbe2ac',r:6},'Saturno':{b:'#e8c982',d:'#a98542',l:'#f8e8b8',r:5,ring:'#d9b36a',band:'#c9a35c'},'Júpiter':{b:'#d99a63',d:'#8f5a33',l:'#f1cfa6',r:6.5,band:'#b9764a'},'Tierra':{b:'#3a7bd5',d:'#1b4a99',l:'#8fd0ff',r:6,land:'#3fa564'},'Marte':{b:'#d2573b',d:'#8e2e1f',l:'#f0997f',r:5.4},'Neptuno':{b:'#3b57d9',d:'#1f2f8f',l:'#8fa5ff',r:6},'Planeta X':{b:'#9a5fd6',d:'#5b2f95',l:'#d4b0ff',r:4.8,ring:GOLD},'Ceres':{b:'#a39a8a',d:'#6a6354',l:'#d9d2c3',r:4.4},'Eris':{b:'#e8f0f5',d:'#98aab8',l:'#ffffff',r:5.4}};
+function purl(name){
+  var q=PL[name],c=mk(16,16),g=c.getContext('2d');
+  function ring(front){for(var i=0;i<=60;i++){var t=i/60*Math.PI*2,s=Math.sin(t);if((s>=0)!==front)continue;var f=-.35,x=8+7.6*Math.cos(t)*Math.cos(f)-2.3*s*Math.sin(f),y=8+7.6*Math.cos(t)*Math.sin(f)+2.3*s*Math.cos(f);dot(g,x,y,q.ring);}}
+  if(q.ring)ring(false);
+  disc(g,8,8,q.r+1,q.r+1,OL);
+  disc(g,8,8,q.r,q.r,q.b,function(x,y){var dx=(x+.5-8)/q.r,dy=(y+.5-8)/q.r,li=-dx*.55-dy*.55;if(q.band&&(y%4===0))return q.band;if(q.land&&((x*7+y*13)%11<3))return q.land;return li>.4?q.l:(li<-.3?q.d:q.b);});
+  if(q.ring)ring(true);
+  return c.toDataURL();
+}
+function durl(d){
+  var c=mk(28,40),g=c.getContext('2d');
+  rect(g,0,0,28,40,OL);rect(g,1,1,26,38,'#f6efde');rect(g,3,3,22,34,OL);
+  for(var y=4;y<36;y++)for(var x=4;x<24;x++){var on=d[4]?(((x>>1)+(y>>1))%2===0):((x+y)%6===0||(x-y+60)%6===0);dot(g,x,y,on?d[3]:d[2]);}
+  for(var r=0;r<=6;r++){rect(g,14-r,14+r,r*2,1,'#f6efde');rect(g,14-r,26-r,r*2,1,'#f6efde');}
+  for(r=0;r<=4;r++){rect(g,14-r,16+r,r*2,1,d[2]);rect(g,14-r,24-r,r*2,1,d[2]);}
+  for(r=0;r<=2;r++){rect(g,14-r,18+r,r*2,1,d[4]?d[3]:'#f6efde');rect(g,14-r,22-r,r*2,1,d[4]?d[3]:'#f6efde');}
+  g.clearRect(0,0,1,1);g.clearRect(27,0,1,1);g.clearRect(0,39,1,1);g.clearRect(27,39,1,1);
+  return c.toDataURL();
+}
+
+/* ================= HELPERS ================= */
+function kinds(e){var k=[];if(/X[\d,]+ de Mult/.test(e))k.push('X Mult');else if(/de Mult|Mult/.test(e))k.push('+Mult');if(/fichas/.test(e))k.push('Fichas');if(/\$/.test(e))k.push('Economía');if(/(crea|Crea|Tarot|Espectral)/.test(e))k.push('Creación');if(/(Repite|repite)/.test(e))k.push('Repetición');if(!k.length)k.push('Utilidad');return k;}
+function rarB(r){return '<span class="rar r'+r+'">'+RAR[r]+'</span>';}
+function table(head,rows,cls){return '<div class="tw"><table'+(cls?' class="'+cls+'"':'')+'><thead><tr>'+head.map(function(h){return '<th>'+h+'</th>';}).join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table></div>';}
+function art(o){
+  return '<article class="art"><div class="crumb"><a href="#inicio">Inicio</a>'+(o.crumb?' › '+o.crumb:'')+'</div><h1>'+o.title+'</h1>'+(o.sub?'<p class="sub">'+o.sub+'</p>':'')
+   +'<div class="body">'+(o.info?'<aside class="info">'+o.info+'</aside>':'')+(o.intro?'<p class="lead">'+o.intro+'</p>':'')+'<div id="toc"></div>'+o.body+'</div></article>';
+}
+
+/* ================= NAVEGACIÓN ================= */
+var NAV=[
+ ['Portal',[['inicio','Inicio']]],
+ ['Cartas',[['jokers','Jokers',JOKERS.length],['planetas','Cartas planeta',12],['tarot','Cartas de Tarot',22],['espectrales','Cartas espectrales',18],['mejoras','Mejoras, sellos y ediciones']]],
+ ['Partida',[['manos','Manos de póker',12],['ciegas','Ciegas y jefes',28],['stakes','Stakes',8],['mazos','Mazos',15],['cupones','Cupones',32],['etiquetas','Etiquetas',24],['sobres','Sobres',5]]],
+ ['Guías y herramientas',[['mecanicas','Mecánicas'],['simulador','Simulador de puntuación']]]
+];
+function renderSide(cur){
+  var h='';
+  NAV.forEach(function(g){h+='<h4>'+g[0]+'</h4>';g[1].forEach(function(l){
+    var on=(cur===l[0])||(cur.indexOf('joker-')===0&&l[0]==='jokers');
+    h+='<a href="#'+l[0]+'"'+(on?' aria-current="page"':'')+'>'+l[1]+(l[2]?'<span>'+l[2]+'</span>':'')+'</a>';});});
+  $('side').innerHTML=h;
+}
+
+/* ================= PÁGINAS ================= */
+var PAGES={};
+
+PAGES.inicio=function(){
+  var cats=[
+   ['jokers','Jokers',JOKERS.length+' jokers con rareza, coste y efecto.','img',jurl(JBY['joker-triboulet'])],
+   ['planetas','Cartas planeta','Sube el nivel de tus manos.','img',purl('Saturno')],
+   ['tarot','Cartas de Tarot','Mejora y transforma tu mazo.','t','XIII','#7a4fd0'],
+   ['espectrales','Espectrales','Riesgo alto, premio alto.','t','✦','#3a5fd0'],
+   ['mejoras','Mejoras y sellos','Bonus, Cristal, Suerte, ediciones.','t','◆','#d9473f'],
+   ['manos','Manos de póker','Valores base y mejora por nivel.','t','♠','#2f6fd1'],
+   ['ciegas','Ciegas y jefes','Las 28 ciegas jefe y sus reglas.','t','!','#c9303b'],
+   ['stakes','Stakes','Ocho dificultades acumulativas.','t','8','#f5be4f'],
+   ['mazos','Mazos','Los 15 mazos iniciales.','img',durl(DECKS[1]),'deck'],
+   ['cupones','Cupones','16 cupones y sus mejoras.','t','$','#2f9b66'],
+   ['etiquetas','Etiquetas','Qué recibes al saltar una ciega.','t','⚑','#e07b39'],
+   ['sobres','Sobres','Arcanos, Celestial, Espectral y más.','t','▣','#9a5fd6'],
+   ['mecanicas','Mecánicas','Orden de puntuación, economía, stickers.','t','?','#17463c'],
+   ['simulador','Simulador','Prueba combinaciones de jokers.','t','×','#ff5a52']
+  ];
+  var ch=cats.map(function(c){
+    var ico=c[3]==='img'?'<span class="ico" style="background:var(--bg)"><img src="'+c[4]+'" alt="" '+(c[5]==='deck'?'style="width:34px;height:48px"':'')+'></span>':'<span class="ico" style="background:'+c[5]+'">'+c[4]+'</span>';
+    return '<a class="cat" href="#'+c[0]+'">'+ico+'<div><b>'+c[1]+'</b><span>'+c[2]+'</span></div></a>';
+  }).join('');
+  var rnd=JOKERS[Math.floor(Math.random()*JOKERS.length)];
+  return '<article class="art" style="max-width:1100px"><section class="hero"><canvas id="swirl" width="96" height="40" aria-hidden="true"></canvas><div>'
+   +'<h1>La wiki de <em>Balatro</em> en español</h1><p>Consulta jokers, cartas, cupones, ciegas y mecánicas del roguelike de póker de LocalThunk. Todo en un sitio, con buscador.</p>'
+   +'<div class="facts"><div><b>'+JOKERS.length+'</b><span>Jokers</span></div><div><b>'+(HANDS.length)+'</b><span>Manos</span></div><div><b>32</b><span>Cupones</span></div><div><b>15</b><span>Mazos</span></div><div><b>8</b><span>Stakes</span></div></div></div></section>'
+   +'<div class="cats">'+ch+'</div>'
+   +'<div class="two"><section class="box"><h2>Lo básico</h2><ul>'
+   +'<li>Una partida son 8 Antes. Cada Ante tiene ciega pequeña, grande y jefe.</li>'
+   +'<li>Cada mano puntúa <span class="c">fichas</span> × <span class="m">multiplicador</span>.</li>'
+   +'<li>Empiezas con 4 manos, 3 descartes, $4, mano de 8 cartas y 5 huecos de joker.</li>'
+   +'<li>Los jokers se evalúan de izquierda a derecha, así que su orden importa.</li>'
+   +'<li>Ganas $1 de interés por cada $5 que guardes, hasta $5.</li></ul>'
+   +'<p style="margin-top:12px"><a href="#mecanicas">Leer las mecánicas completas</a></p></section>'
+   +'<section class="box"><h2>Joker al azar</h2><div style="display:flex;gap:14px;align-items:center"><img src="'+jurl(rnd)+'" alt="" width="84" height="84"><div><a href="#'+rnd.id+'" style="font:700 1.15rem var(--display);color:var(--ink);text-decoration:none">'+rnd.n+'</a><div style="margin:4px 0">'+rarB(rnd.r)+'</div><p style="margin:0;font-size:.9rem;color:var(--ink-dim)">'+rnd.e+'</p></div></div></section></div></article>';
+};
+
+PAGES.jokers=function(){
+  return art({title:'Jokers',crumb:'Cartas › Jokers',sub:JOKERS.length+' jokers en el juego base.',
+   intro:'Los jokers son cartas que modifican la puntuación o las reglas. Ocupan uno de tus 5 huecos y actúan de izquierda a derecha.',
+   body:'<h2 id="lista">Lista completa</h2><div class="tools"><input type="search" id="jf" placeholder="Filtrar por nombre o efecto" aria-label="Filtrar jokers"><select id="js" aria-label="Ordenar"><option value="n">Orden A-Z</option><option value="c">Coste ↑</option><option value="r">Rareza</option></select><div class="chips" id="jr" role="group" aria-label="Rareza"></div><span class="count" id="jc"></span></div>'
+   +'<div class="tw"><table><thead><tr><th></th><th>Joker</th><th>Rareza</th><th>Coste</th><th>Efecto</th></tr></thead><tbody id="jb"></tbody></table></div>'
+   +'<h2 id="rareza">Rareza en la tienda</h2><p>En la tienda, un joker sale común el 70% de las veces, poco común el 25% y raro el 5%. Los legendarios no aparecen en la tienda: solo salen de la carta espectral <a href="#espectrales">The Soul</a>.</p>'
+   +'<h2 id="ediciones">Ediciones</h2><p>Un joker puede traer una edición: Foil (+50 fichas), Holográfica (+10 de Mult), Policroma (X1,5 de Mult) o Negativa (+1 hueco de joker). Más en <a href="#mejoras">Mejoras, sellos y ediciones</a>.</p>'});
+};
+function initJokers(){
+  var st={q:'',r:'all',s:'n'},ORD={C:0,U:1,R:2,L:3};
+  var chips=[['all','Todos'],['C','Comunes'],['U','Poco comunes'],['R','Raras'],['L','Legendarias']];
+  $('jr').innerHTML=chips.map(function(c){return '<button type="button" data-r="'+c[0]+'" aria-pressed="'+(c[0]==='all')+'">'+c[1]+'</button>';}).join('');
+  function draw(){
+    var q=st.q.toLowerCase(),list=JOKERS.filter(function(j){return(st.r==='all'||j.r===st.r)&&(!q||(j.n+' '+j.e).toLowerCase().indexOf(q)>-1);});
+    list.sort(function(a,b){if(st.s==='c')return a.c-b.c||a.n.localeCompare(b.n);if(st.s==='r')return ORD[a.r]-ORD[b.r]||a.n.localeCompare(b.n);return a.n.localeCompare(b.n);});
+    $('jb').innerHTML=list.map(function(j){return '<tr data-name="'+j.n+'"><td><img class="ji" alt="" src="'+jurl(j)+'"></td><td><a class="nm" href="#'+j.id+'">'+j.n+'</a></td><td>'+rarB(j.r)+'</td><td class="n g">$'+j.c+'</td><td>'+j.e+'</td></tr>';}).join('')||'<tr><td colspan="5">Ningún joker coincide.</td></tr>';
+    $('jc').textContent=list.length+' de '+JOKERS.length;
+  }
+  $('jf').addEventListener('input',function(){st.q=this.value;draw();});
+  $('js').addEventListener('change',function(){st.s=this.value;draw();});
+  $('jr').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;st.r=b.dataset.r;Array.prototype.forEach.call($('jr').children,function(x){x.setAttribute('aria-pressed',x===b);});draw();});
+  draw();
+}
+function jokerPage(j){
+  var i=JOKERS.indexOf(j),rel=[];
+  JOKERS.filter(function(x){return x.r===j.r&&x!==j;}).sort(function(a,b){return Math.abs(hsh(a.n)%97-hsh(j.n)%97)-Math.abs(hsh(b.n)%97-hsh(j.n)%97);}).slice(0,6).forEach(function(x){rel.push(x);});
+  var s=jspec(j),sell=Math.max(1,Math.floor(j.c/2));
+  var info='<h3>'+j.n+'</h3><div class="pic" style="--a:'+s.a+'55;--b:'+s.b+'55"><img alt="Ilustración de '+j.n+'" src="'+jurl(j)+'"></div><dl><dt>Rareza</dt><dd>'+rarB(j.r)+'</dd><dt>Coste base</dt><dd class="g">$'+j.c+'</dd><dt>Valor de venta</dt><dd>$'+sell+'</dd><dt>Categorías</dt><dd>'+kinds(j.e).join(', ')+'</dd></dl>';
+  var rel2=rel.map(function(x){return '<a href="#'+x.id+'"><img alt="" src="'+jurl(x)+'">'+x.n+'</a>';}).join('');
+  var prev=JOKERS[i-1],next=JOKERS[i+1];
+  return art({title:j.n,crumb:'<a href="#jokers">Jokers</a> › '+j.n,info:info,sub:'Joker · '+RAR[j.r].toLowerCase(),intro:j.e,
+   body:'<h2 id="datos">Datos</h2><p>'+j.n+' es un joker de rareza <b>'+RAR[j.r].toLowerCase()+'</b> con un coste base de <b>$'+j.c+'</b>. Al venderlo recibes <b>$'+sell+'</b>.'+(j.r==='L'?' Solo aparece al usar la carta espectral <a href="#espectrales">The Soul</a>.':'')+'</p>'
+   +'<p>'+kinds(j.e).map(function(k){return '<span class="pill">'+k+'</span>';}).join('')+'</p>'
+   +'<h2 id="orden">Colocación</h2><p>Los jokers actúan de izquierda a derecha. Los efectos de fichas y +Mult conviene colocarlos antes que los X Mult. Prueba combinaciones en el <a href="#simulador">simulador</a>.</p>'
+   +'<h2 id="rel">Jokers de la misma rareza</h2><div class="rel">'+rel2+'</div>'
+   +'<p style="margin-top:22px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">'+(prev?'<a href="#'+prev.id+'">← '+prev.n+'</a>':'<span></span>')+(next?'<a href="#'+next.id+'">'+next.n+' →</a>':'')+'</p>'});
+}
+
+PAGES.planetas=function(){
+  var tiles=HANDS.map(function(h){return '<div class="tile" data-name="'+h.p+'"><div class="pic"><img alt="Planeta '+h.p+'" src="'+purl(h.p)+'"></div><div class="top2"><h3>'+h.p+'</h3><span class="cost">$3</span></div><p>Sube el nivel de <b>'+h.n+'</b>: <span class="c">+'+h.lc+' fichas</span> y <span class="m">+'+h.lm+' Mult</span>.'+(h.s?' Mano secreta.':'')+'</p></div>';}).join('');
+  return art({title:'Cartas planeta',crumb:'Cartas › Planetas',sub:'Doce planetas, uno por mano de póker.',
+   intro:'Cada carta planeta sube un nivel la mano de póker a la que pertenece. Cada nivel suma fichas y multiplicador a esa mano. Aparecen en la tienda y en los sobres Celestiales.',
+   body:'<h2 id="cartas">Los planetas</h2><div class="grid">'+tiles+'</div><h2 id="notas">Notas</h2><ul><li>Planeta X, Ceres y Eris pertenecen a manos secretas. No aparecen hasta que juegas esa mano por primera vez.</li><li>El cupón <a href="#cupones">Telescope</a> hace que los sobres Celestiales traigan el planeta de tu mano más jugada.</li><li>La carta espectral <a href="#espectrales">Black Hole</a> sube un nivel todas las manos.</li></ul>'});
+};
+
+PAGES.manos=function(){
+  var rows=HANDS.map(function(h){return '<tr data-name="'+h.n+'"><td><b>'+h.n+'</b>'+(h.s?' <span class="pill">secreta</span>':'')+'</td><td class="n"><span class="c" data-c="'+h.id+'">'+h.c+'</span></td><td class="n"><span class="m" data-m="'+h.id+'">'+h.m+'</span></td><td class="n g" data-t="'+h.id+'">'+fmt(h.c*h.m)+'</td><td>'+h.p+'</td><td class="n"><span class="c">+'+h.lc+'</span> / <span class="m">+'+h.lm+'</span></td></tr>';}).join('');
+  return art({title:'Manos de póker',crumb:'Partida › Manos',sub:'Fichas y multiplicador base de cada mano.',
+   intro:'Cada mano parte de unas fichas y un multiplicador. La puntuación es fichas × multiplicador, tras sumar las cartas que puntúan y los efectos de los jokers.',
+   body:'<h2 id="tabla">Tabla de manos</h2><div class="tools"><label for="nv" style="font:700 .75rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-dim)">Ver nivel <output id="nvo" class="g">1</output></label><input id="nv" type="range" min="1" max="20" value="1" style="max-width:260px"></div>'
+   +table(['Mano','Fichas','Mult','Base','Planeta','Por nivel'],[rows])
+   +'<h2 id="secretas">Manos secretas</h2><p>Repóker, Full de color y Color de repóker no se muestran hasta que las juegas. Requieren cartas duplicadas (por ejemplo mediante <a href="#espectrales">Cryptid</a> o mejoras de mazo).</p>'
+   +'<h2 id="escalera-real">Escalera real</h2><p>La escalera real (10, J, Q, K, A del mismo palo) cuenta como Escalera de color.</p>'});
+};
+function initManos(){
+  $('nv').addEventListener('input',function(){
+    var L=+this.value;$('nvo').textContent=L;
+    HANDS.forEach(function(h){var c=h.c+(L-1)*h.lc,m=h.m+(L-1)*h.lm;
+      document.querySelector('[data-c="'+h.id+'"]').textContent=fmt(c);document.querySelector('[data-m="'+h.id+'"]').textContent=fmt(m);document.querySelector('[data-t="'+h.id+'"]').textContent=fmt(c*m);});
+  });
+}
+
+PAGES.tarot=function(){
+  var tiles=TAROT.map(function(t,i){var cs=[['#7a4fd0','#5c38a8'],['#3a97ff','#2459a0'],['#d9473f','#a93029'],['#2fc78a','#1f9a69'],['#e5b93c','#a67c12']][i%5];
+    return '<div class="tile" data-name="'+t[0]+'"><div class="roman" style="--a:'+cs[0]+';--b:'+cs[1]+'">'+t[1]+'</div><h3>'+t[0]+'</h3><p>'+t[2]+'</p></div>';}).join('');
+  return art({title:'Cartas de Tarot',crumb:'Cartas › Tarot',sub:'22 cartas de Arcanos Mayores.',intro:'Los Tarots son consumibles de un solo uso. Transforman cartas de tu mazo, generan dinero u objetos. Cuestan $3 en la tienda y aparecen en los sobres de Arcanos.',body:'<h2 id="cartas">Las 22 cartas</h2><div class="grid">'+tiles+'</div>'});
+};
+PAGES.espectrales=function(){
+  var tiles=SPEC.map(function(t,i){var cs=[['#3a5fd0','#1b2a70'],['#7a4fd0','#3d2478'],['#2a7f78','#164a46']][i%3];
+    return '<div class="tile" data-name="'+t[0]+'"><div class="roman" style="--a:'+cs[0]+';--b:'+cs[1]+'">✦</div><h3>'+t[0]+'</h3><p>'+t[1]+'</p></div>';}).join('');
+  return art({title:'Cartas espectrales',crumb:'Cartas › Espectrales',sub:'18 cartas de riesgo y recompensa.',intro:'Las cartas Espectrales hacen cosas potentes con un coste. Solo aparecen en sobres Espectrales, salvo con el Mazo fantasma o el cupón Omen Globe.',body:'<h2 id="cartas">Las 18 cartas</h2><div class="grid">'+tiles+'</div><h2 id="rara">Cartas especiales</h2><p><b>The Soul</b> y <b>Black Hole</b> pueden salir en cualquier sobre Arcanos o Celestial con una probabilidad pequeña. <b>The Soul</b> es la única forma de conseguir un joker legendario.</p>'});
+};
+
+PAGES.mejoras=function(){
+  var e=ENH.map(function(x){return '<div class="sw" data-name="'+x[0]+'"><div class="pc e-'+x[1]+'">A</div><div><h3>'+x[0]+'</h3><p>'+x[2]+'</p></div></div>';}).join('');
+  var s=SEALS.map(function(x){return '<div class="sw" data-name="'+x[0]+'"><div class="pc red"><span class="seal" style="background:'+x[1]+'"></span></div><div><h3>'+x[0]+'</h3><p>'+x[2]+'</p></div></div>';}).join('');
+  var d=EDIT.map(function(x){return '<div class="sw" data-name="'+x[0]+'"><div class="pc e-'+x[1]+'">★</div><div><h3>'+x[0]+'</h3><p>'+x[2]+'</p></div></div>';}).join('');
+  return art({title:'Mejoras, sellos y ediciones',crumb:'Cartas › Mejoras',intro:'Las cartas de tu mazo pueden tener una mejora, un sello y una edición a la vez. Los jokers solo tienen edición.',
+   body:'<h2 id="mejoras">Mejoras</h2><div class="swatches">'+e+'</div><h2 id="sellos">Sellos</h2><div class="swatches">'+s+'</div><h2 id="ediciones">Ediciones</h2><div class="swatches">'+d+'</div><p>Con las ediciones de un joker, Foil y Holográfica se aplican antes de su habilidad y Policroma después.</p>'});
+};
+
+PAGES.mazos=function(){
+  var t=DECKS.map(function(x){return '<div class="tile" data-name="'+x[0]+'"><div class="pic"><img class="deck" alt="" src="'+durl(x)+'"></div><h3>'+x[0]+'</h3><p>'+x[1]+'</p></div>';}).join('');
+  return art({title:'Mazos',crumb:'Partida › Mazos',sub:'15 mazos iniciales.',intro:'El mazo elegido define tus recursos y reglas desde el inicio. La mayoría se desbloquea jugando.',body:'<h2 id="lista">Todos los mazos</h2><div class="grid">'+t+'</div>'});
+};
+PAGES.stakes=function(){
+  var r=STAKES.map(function(s,i){return '<tr data-name="Stake '+s[0]+'"><td class="n">'+(i+1)+'</td><td><span class="chip" style="background:'+s[1]+'"></span><b>'+s[0]+'</b></td><td>'+s[2]+'</td></tr>';}).join('');
+  var base=BASE[0].map(function(v,i){return '<tr><td class="n">Ante '+(i+1)+'</td><td class="n">'+fmt(BASE[0][i])+'</td><td class="n">'+fmt(BASE[1][i])+'</td><td class="n">'+fmt(BASE[2][i])+'</td></tr>';}).join('');
+  return art({title:'Stakes',crumb:'Partida › Stakes',sub:'Ocho niveles de dificultad acumulativos.',intro:'Al ganar una partida con un mazo desbloqueas el siguiente stake para él. Cada stake incluye los modificadores de los anteriores.',
+   body:'<h2 id="lista">Los ocho stakes</h2>'+table(['#','Stake','Modificador nuevo'],[r])+'<h2 id="puntuacion">Puntuación base por Ante</h2><p>La puntuación de la ciega pequeña es la base, la grande es ×1,5 y la jefe ×2.</p>'+table(['Ante','Blanco y Rojo','Verde a Azul','Morado a Oro'],[base])});
+};
+PAGES.ciegas=function(){
+  var b=BOSS.map(function(x){return '<tr data-name="'+x[0]+'"><td><b>'+x[0]+'</b></td><td>'+x[1]+'</td></tr>';}).join('');
+  var f=FINAL.map(function(x){return '<tr data-name="'+x[0]+'"><td><b>'+x[0]+'</b></td><td>'+x[1]+'</td></tr>';}).join('');
+  return art({title:'Ciegas y jefes',crumb:'Partida › Ciegas',intro:'Cada Ante tiene tres ciegas. Debes superar la puntuación de cada una antes de quedarte sin manos.',
+   body:'<h2 id="tipos">Tipos de ciega</h2>'+table(['Ciega','Puntuación','Recompensa','Notas'],['<tr><td><b>Pequeña</b></td><td class="n">×1</td><td class="n g">$3</td><td>Se puede saltar a cambio de una <a href="#etiquetas">etiqueta</a>.</td></tr>','<tr><td><b>Grande</b></td><td class="n">×1,5</td><td class="n g">$4</td><td>Se puede saltar a cambio de una etiqueta.</td></tr>','<tr><td><b>Jefe</b></td><td class="n">×2</td><td class="n g">$5</td><td>No se puede saltar y trae una regla especial.</td></tr>'])
+   +'<h2 id="jefes">Ciegas jefe estándar</h2>'+table(['Jefe','Efecto'],[b])+'<h2 id="finales">Jefes finales</h2><p>Aparecen en el Ante 8 y siguientes.</p>'+table(['Jefe','Efecto'],[f])});
+};
+PAGES.cupones=function(){
+  var p=VOUCH.map(function(v){return '<div class="pair"><div class="tile" data-name="'+v[0]+'"><h3>'+v[0]+'</h3><p>'+v[2]+'</p><span class="cost">$10</span></div><div class="arrow">→</div><div class="tile" data-name="'+v[1]+'"><h3>'+v[1]+'</h3><p>'+v[3]+'</p><span class="cost">$10</span></div></div>';}).join('');
+  return art({title:'Cupones',crumb:'Partida › Cupones',sub:'16 cupones base y 16 mejoras.',intro:'Los cupones son mejoras permanentes que compras en la tienda. Solo aparece uno por tienda. Para ver la mejora de un cupón primero debes comprar el base.',body:'<h2 id="lista">Todos los cupones</h2>'+p});
+};
+PAGES.etiquetas=function(){
+  var r=TAGS.map(function(t){return '<tr data-name="'+t[0]+'"><td><b>'+t[0]+'</b></td><td>'+t[1]+'</td></tr>';}).join('');
+  return art({title:'Etiquetas',crumb:'Partida › Etiquetas',intro:'Saltar una ciega pequeña o grande te da una etiqueta en lugar de jugarla. Pierdes la recompensa y la tienda de esa ciega.',body:'<h2 id="lista">Lista de etiquetas</h2>'+table(['Etiqueta','Efecto'],[r])});
+};
+PAGES.sobres=function(){
+  var r=PACKS.map(function(p){return '<tr data-name="'+p[0]+'"><td><b>'+p[0]+'</b></td><td>'+p[1]+'</td><td class="n">'+p[2]+'</td><td class="n">'+p[3]+'</td><td class="n">'+p[4]+'</td></tr>';}).join('');
+  return art({title:'Sobres',crumb:'Partida › Sobres',intro:'Los sobres se compran en la tienda y te dejan elegir cartas entre varias. Hay tres tamaños: normal ($4), Jumbo ($6) y Mega ($8).',body:'<h2 id="tabla">Tipos y tamaños</h2>'+table(['Sobre','Contiene','Normal','Jumbo','Mega'],[r])+'<p>Cada celda indica cuántas cartas trae el sobre y cuántas puedes elegir. Saltar un sobre activa efectos como el de <a href="#joker-red-card">Red Card</a>.</p>'});
+};
+
+PAGES.mecanicas=function(){
+  return art({title:'Mecánicas',crumb:'Guías › Mecánicas',intro:'Las reglas que no se ven a simple vista y que más influyen en una partida.',
+   body:'<h2 id="puntuacion">Orden de puntuación</h2><ol><li>Se toman las <span class="c">fichas</span> y el <span class="m">Mult</span> base de la mano, según su nivel.</li><li>Cada carta que puntúa, de izquierda a derecha, suma sus fichas, luego su mejora, su edición y los efectos de jokers que reaccionan a esa carta.</li><li>Las cartas que mantienes en la mano activan sus efectos (por ejemplo Acero o Baron).</li><li>Los jokers actúan de izquierda a derecha: primero su edición (Foil, Holográfica), luego su habilidad, luego Policroma.</li><li>El resultado es fichas × Mult.</li></ol><p>Por eso un X Mult colocado antes de un +Mult vale menos. Pruébalo en el <a href="#simulador">simulador</a>.</p>'
+   +'<h2 id="inicio">Recursos iniciales</h2>'+table(['Recurso','Valor'],['<tr><td>Manos por ronda</td><td class="n">4</td></tr>','<tr><td>Descartes por ronda</td><td class="n">3</td></tr>','<tr><td>Tamaño de mano</td><td class="n">8 cartas</td></tr>','<tr><td>Cartas por mano jugada</td><td class="n">hasta 5</td></tr>','<tr><td>Dinero</td><td class="n g">$4</td></tr>','<tr><td>Huecos de joker</td><td class="n">5</td></tr>','<tr><td>Huecos de consumible</td><td class="n">2</td></tr>','<tr><td>Cartas del mazo</td><td class="n">52</td></tr>'])
+   +'<h2 id="economia">Economía</h2><ul><li><b>Recompensa de ciega:</b> $3 pequeña, $4 grande y $5 jefe.</li><li><b>Manos sobrantes:</b> $1 por cada mano que no uses.</li><li><b>Interés:</b> $1 por cada $5 que tengas al final de la ronda, hasta $5 (con $25).</li><li><b>Reroll:</b> empieza en $5 y sube $1 con cada uso.</li><li><b>Venta:</b> un objeto se vende por la mitad de su coste (redondeado hacia abajo, mínimo $1).</li></ul>'
+   +'<h2 id="stickers">Stickers</h2><ul><li><b>Eterno:</b> no se puede vender ni destruir.</li><li><b>Perecedero:</b> se desactiva tras 5 rondas.</li><li><b>Alquiler:</b> cuesta $3 al final de cada ronda.</li></ul>'
+   +'<h2 id="victoria">Cómo se gana</h2><p>Superas la ciega jefe del Ante 8. Después puedes seguir en modo sin fin, donde las puntuaciones requeridas crecen con rapidez.</p>'});
+};
+
+PAGES.simulador=function(){
+  return art({title:'Simulador de puntuación',crumb:'Guías › Simulador',intro:'Elige una mano, su nivel y hasta 5 jokers. Muévelos con las flechas para ver cómo cambia el resultado.',
+   body:'<div class="sim"><div class="box ctrl"><div><label for="hand">Mano jugada</label><select id="hand"></select></div><div><label for="lvl">Nivel de la mano <output id="lvlo">3</output></label><input type="range" id="lvl" min="1" max="15" value="3"></div><div><label for="cc">Fichas de las cartas que puntúan <output id="cco">20</output></label><input type="range" id="cc" min="0" max="80" value="20"><p class="hint">As = 11, figuras = 10, el resto su valor.</p></div><div><span class="lbl">Jokers (máx. 5)</span><div class="pal" id="pal"></div><div class="slots" id="slots"></div></div><div class="row2"><div><label for="stk">Stake</label><select id="stk"><option value="0">Blanco o Rojo</option><option value="1">Verde a Azul</option><option value="2">Morado u Oro</option></select></div><div><label for="ante">Ante</label><select id="ante"></select></div><div><label for="blind">Ciega</label><select id="blind"><option value="1">Pequeña ×1</option><option value="1.5">Grande ×1,5</option><option value="2" selected>Jefe ×2</option></select></div></div><button class="link" id="clear" type="button">Quitar todos los jokers</button></div>'
+   +'<div class="board" aria-live="polite"><div class="calc"><div class="box2 chips2" id="sC">0</div><div class="x">×</div><div class="box2 mult2" id="sM">0</div></div><div class="big"><small>Puntuación de la mano</small><b id="sT">0</b></div><div class="verdict" id="vd"></div><ol class="trace" id="tr"></ol></div></div>'});
+};
+function initSim(){
+  var JK={joker:['Joker','+4 Mult','m',null,4],jolly:['Jolly Joker','+8 Mult · Pareja','m','pair',8],wily:['Wily Joker','+100 fichas · Trío','c','three',100],duo:['The Duo','X2 · Pareja','x','pair',2],cav:['Cavendish','X3 Mult','x',null,3]};
+  var order=['duo','joker','jolly'],hs=$('hand'),lv=$('lvl'),cc=$('cc'),an=$('ante'),bl=$('blind'),sk=$('stk'),shown=0,raf=0;
+  HANDS.forEach(function(h){var o=document.createElement('option');o.value=h.id;o.textContent=h.n+(h.s?' (secreta)':'');hs.appendChild(o);});hs.value='pair';
+  function antes(){an.innerHTML='';BASE[+sk.value].forEach(function(b,i){var o=document.createElement('option');o.value=i;o.textContent='Ante '+(i+1)+' · base '+fmt(b);an.appendChild(o);});}
+  antes();an.value='1';
+  Object.keys(JK).forEach(function(k){var b=document.createElement('button');b.type='button';b.innerHTML=JK[k][0]+'<small>'+JK[k][1]+'</small>';b.addEventListener('click',function(){if(order.length<5){order.push(k);run();}});$('pal').appendChild(b);});
+  $('clear').addEventListener('click',function(){order=[];run();});
+  $('slots').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var i=+b.dataset.i,a=b.dataset.a;
+    if(a==='x')order.splice(i,1);else if(a==='l'&&i>0){var t=order[i-1];order[i-1]=order[i];order[i]=t;}else if(a==='r'&&i<order.length-1){var u=order[i+1];order[i+1]=order[i];order[i]=u;}run();});
+  function slots(){var h='';for(var i=0;i<5;i++){if(order[i]){var j=JK[order[i]];h+='<div class="slot full"><div><span class="jn">'+j[0]+'</span><span class="jd">'+j[1]+'</span></div><div class="mv"><button type="button" data-a="l" data-i="'+i+'" aria-label="Mover a la izquierda"'+(i===0?' disabled':'')+'>◀</button><button type="button" data-a="x" data-i="'+i+'" aria-label="Quitar">✕</button><button type="button" data-a="r" data-i="'+i+'" aria-label="Mover a la derecha"'+(i===order.length-1?' disabled':'')+'>▶</button></div></div>';}else h+='<div class="slot">Hueco '+(i+1)+'</div>';}$('slots').innerHTML=h;}
+  function count(to){cancelAnimationFrame(raf);if(REDUCED){$('sT').textContent=fmt(to);shown=to;return;}var from=shown,t0=performance.now();(function step(n){var el=$('sT');if(!el)return;var k=Math.min(1,(n-t0)/420),e=1-Math.pow(1-k,3);el.textContent=fmt(from+(to-from)*e);if(k<1)raf=requestAnimationFrame(step);else shown=to;})(t0);}
+  function run(){
+    var h=HBY[hs.value],L=+lv.value,card=+cc.value;$('lvlo').textContent=L;$('cco').textContent=card;
+    var chips=h.c+(L-1)*h.lc,mult=h.m+(L-1)*h.lm,tr='<li class="c"><b>'+h.n+' nv. '+L+'</b><span>'+chips+' × '+mult+'</span></li>';
+    chips+=card;tr+='<li class="c"><b>Cartas que puntúan</b><span>+'+card+' fichas</span></li>';
+    order.forEach(function(k){var j=JK[k],ok=!j[3]||(j[3]==='pair'?HAS_PAIR[h.id]:HAS_THREE[h.id]);
+      if(!ok){tr+='<li class="skip"><b>'+j[0]+'</b><span>no se activa</span></li>';return;}
+      if(j[2]==='m'){mult+=j[4];tr+='<li class="m"><b>'+j[0]+'</b><span>+'+j[4]+' mult → '+mult+'</span></li>';}
+      else if(j[2]==='c'){chips+=j[4];tr+='<li class="c"><b>'+j[0]+'</b><span>+'+j[4]+' fichas → '+chips+'</span></li>';}
+      else{mult*=j[4];tr+='<li class="x"><b>'+j[0]+'</b><span>×'+j[4]+' mult → '+mult+'</span></li>';}});
+    var total=Math.floor(chips*mult);$('sC').textContent=fmt(chips);$('sM').textContent=fmt(mult);count(total);$('tr').innerHTML=tr;
+    var target=BASE[+sk.value][+an.value]*parseFloat(bl.value),ok2=total>=target;
+    var v=$('vd');v.className='verdict '+(ok2?'win':'lose');
+    v.innerHTML='<span>'+(ok2?'Superas la ciega por '+fmt(total-target):'Te faltan '+fmt(target-total)+' puntos')+'</span><span class="hint num">Objetivo '+fmt(target)+' en una sola mano</span><span class="meter"><i style="width:'+Math.min(100,total/target*100)+'%"></i></span>';
+    slots();
+  }
+  sk.addEventListener('change',function(){var cur=an.value;antes();an.value=cur;run();});
+  [hs,lv,cc,an,bl].forEach(function(el){el.addEventListener('input',run);});
+  run();
+}
+
+/* remolino del portal */
+function swirl(){
+  var cv=$('swirl');if(!cv)return;var ctx=cv.getContext('2d'),W=cv.width,H=cv.height,img=ctx.createImageData(W,H),d=img.data;
+  var P=[[8,32,28],[14,58,50],[74,24,38],[20,56,104]],last=0;
+  function frame(ts){
+    if(!document.body.contains(cv))return;
+    if(ts-last>50){last=ts;var t=ts/1000*.35,p=0;
+      for(var y=0;y<H;y++)for(var x=0;x<W;x++){var ux=(x/W-.5)*3.4,uy=(y/H-.5)*1.5;
+        for(var i=1;i<5;i++){var ox=ux;ux+=.5/i*Math.sin(i*uy+t+.3*i);uy+=.5/i*Math.cos(i*ox+t*.8+.3*i);}
+        var v=Math.sin(ux*1.5+uy*1.5)+Math.sin(ux-uy*2),c=v<-1.1?P[1]:v<.1?P[0]:v<1.1?P[2]:P[3];d[p++]=c[0];d[p++]=c[1];d[p++]=c[2];d[p++]=255;}
+      ctx.putImageData(img,0,0);}
+    if(!REDUCED)requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);if(REDUCED)setTimeout(function(){frame(100);},0);
+}
+
+/* ================= ROUTER ================= */
+var pendingHL=null,INIT={jokers:initJokers,manos:initManos,simulador:initSim,inicio:swirl};
+function buildToc(){
+  var hs=document.querySelectorAll('.body h2[id]'),t=$('toc');if(!t)return;
+  if(hs.length<3){t.remove();return;}
+  var h='<b>Contenido</b><ol>';Array.prototype.forEach.call(hs,function(x){h+='<li><a href="#'+x.id+'" data-sec="'+x.id+'">'+x.textContent+'</a></li>';});t.innerHTML=h+'</ol>';
+  t.addEventListener('click',function(e){var a=e.target.closest('a[data-sec]');if(!a)return;e.preventDefault();var el=document.getElementById(a.dataset.sec);if(el)el.scrollIntoView({behavior:REDUCED?'auto':'smooth'});});
+}
+function route(){
+  var id=(location.hash||'#inicio').slice(1)||'inicio',html,page=id;
+  if(JBY[id]){html=jokerPage(JBY[id]);page=id;}
+  else if(PAGES[id]){html=PAGES[id]();}
+  else{html=art({title:'Página no encontrada',body:'<p>No existe la página «'+id.replace(/[^a-z0-9-]/gi,'')+'». Prueba el buscador o vuelve al <a href="#inicio">inicio</a>.</p>'});id='inicio';}
+  $('main').innerHTML=html;renderSide(page);document.body.classList.remove('nav');$('menu').setAttribute('aria-expanded','false');
+  buildToc();if(INIT[page])INIT[page]();
+  var t=JBY[page]?JBY[page].n:(PAGES[page]?(document.querySelector('.art h1')||{}).textContent:'');
+  document.title=(t?t+' · ':'')+'Balatro Hub Wiki';
+  window.scrollTo(0,0);
+  if(pendingHL){var el=document.querySelector('[data-name="'+pendingHL.replace(/"/g,'\\"')+'"]');if(el){el.classList.add('hl');setTimeout(function(){el.scrollIntoView({block:'center',behavior:REDUCED?'auto':'smooth'});},60);}pendingHL=null;}
+}
+window.addEventListener('hashchange',route);
+$('menu').addEventListener('click',function(){var on=document.body.classList.toggle('nav');this.setAttribute('aria-expanded',on);});
+
+/* ================= BUSCADOR ================= */
+var IDX=[];
+JOKERS.forEach(function(j){IDX.push({n:j.n,cat:'Joker',page:j.id,t:j.e});});
+HANDS.forEach(function(h){IDX.push({n:h.n,cat:'Mano',page:'manos',t:h.c+' fichas × '+h.m+' Mult'});IDX.push({n:h.p,cat:'Planeta',page:'planetas',t:'Sube '+h.n});});
+TAROT.forEach(function(t){IDX.push({n:t[0],cat:'Tarot',page:'tarot',t:t[2]});});
+SPEC.forEach(function(t){IDX.push({n:t[0],cat:'Espectral',page:'espectrales',t:t[1]});});
+VOUCH.forEach(function(v){IDX.push({n:v[0],cat:'Cupón',page:'cupones',t:v[2]});IDX.push({n:v[1],cat:'Cupón',page:'cupones',t:v[3]});});
+DECKS.forEach(function(d){IDX.push({n:d[0],cat:'Mazo',page:'mazos',t:d[1]});});
+STAKES.forEach(function(s){IDX.push({n:'Stake '+s[0],cat:'Stake',page:'stakes',t:s[2]});});
+BOSS.concat(FINAL).forEach(function(b){IDX.push({n:b[0],cat:'Jefe',page:'ciegas',t:b[1]});});
+TAGS.forEach(function(t){IDX.push({n:t[0],cat:'Etiqueta',page:'etiquetas',t:t[1]});});
+PACKS.forEach(function(p){IDX.push({n:p[0],cat:'Sobre',page:'sobres',t:p[1]});});
+ENH.forEach(function(x){IDX.push({n:x[0],cat:'Mejora',page:'mejoras',t:x[2]});});
+SEALS.forEach(function(x){IDX.push({n:x[0],cat:'Sello',page:'mejoras',t:x[2]});});
+EDIT.forEach(function(x){IDX.push({n:x[0],cat:'Edición',page:'mejoras',t:x[2]});});
+function norm(s){return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');}
+IDX.forEach(function(e){e.k=norm(e.n);e.kt=norm(e.t);});
+var q=$('q'),res=$('res'),sel=-1,cur=[];
+function find(v){
+  v=norm(v.trim());if(!v)return[];
+  var a=[],b=[];IDX.forEach(function(e){if(e.k.indexOf(v)===0||e.k.indexOf(' '+v)>-1)a.push(e);else if(e.k.indexOf(v)>-1||e.kt.indexOf(v)>-1)b.push(e);});
+  return a.concat(b).slice(0,12);
+}
+function show(){
+  cur=find(q.value);sel=-1;
+  if(!q.value.trim()){res.className='';res.innerHTML='';return;}
+  res.className='on';
+  res.innerHTML=cur.length?cur.map(function(e,i){return '<a href="#'+e.page+'" data-i="'+i+'" role="option"><span><b>'+e.n+'</b></span><em>'+e.cat+'</em><small>'+e.t+'</small></a>';}).join(''):'<p>Sin resultados para «'+q.value.replace(/[<>&]/g,'')+'».</p>';
+}
+function go(e){pendingHL=(e.cat==='Joker')?null:e.n;q.value='';res.className='';location.hash=e.page;if(location.hash==='#'+e.page&&pendingHL)route();}
+q.addEventListener('input',show);q.addEventListener('focus',show);
+q.addEventListener('keydown',function(ev){
+  var as=res.querySelectorAll('a');
+  if(ev.key==='ArrowDown'&&as.length){ev.preventDefault();sel=(sel+1)%as.length;}
+  else if(ev.key==='ArrowUp'&&as.length){ev.preventDefault();sel=(sel-1+as.length)%as.length;}
+  else if(ev.key==='Enter'){var t=cur[sel<0?0:sel];if(t){ev.preventDefault();go(t);}return;}
+  else if(ev.key==='Escape'){res.className='';q.blur();return;}
+  else return;
+  Array.prototype.forEach.call(as,function(a,i){a.classList.toggle('sel',i===sel);});
+});
+res.addEventListener('mousedown',function(ev){var a=ev.target.closest('a[data-i]');if(!a)return;ev.preventDefault();go(cur[+a.dataset.i]);});
+document.addEventListener('click',function(ev){if(!ev.target.closest('.search'))res.className='';});
+document.addEventListener('keydown',function(ev){if(ev.key==='/'&&document.activeElement.tagName!=='INPUT'&&document.activeElement.tagName!=='SELECT'){ev.preventDefault();q.focus();}});
+
+route();
+})();
+</script>
+
+</html>
