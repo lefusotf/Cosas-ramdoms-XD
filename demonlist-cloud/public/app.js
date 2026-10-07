@@ -122,7 +122,7 @@ function render(){
   if(!S){root.innerHTML='<div class="boot">CARGANDO LISTA…</div>';return;}
   document.title=S.site.title;
   var body=tab==='stats'?statsView():(tab==='comparar'?compareView():listView());
-  root.innerHTML=headerHtml()+heroHtml()+'<main><div class="wrap">'+body+'</div></main><footer>Lista compartida. Geometry Dash es de RobTop Games. Sitio de fans sin afiliación oficial. Los puntos usan una fórmula propia.</footer>'+modalHtml()+'<div class="toast" id="toast" role="status"></div>';
+  root.innerHTML=headerHtml()+heroHtml()+'<main><div class="wrap">'+body+'</div></main><footer><p class="fmade">Hecho por Ale :) · <b>¡Viva Garrobos FC!</b></p><p>Lista compartida. Geometry Dash es de RobTop Games. Sitio de fans sin afiliación oficial. Los puntos usan una fórmula propia.</p></footer>'+modalHtml()+'<div class="toast" id="toast" role="status"></div>';
   if(tab==='lista')showDetail();
   if(modal&&modal.type==='level')attPreview();
 }

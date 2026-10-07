@@ -182,3 +182,8 @@ footer{border-top:1px solid var(--line);padding:26px 16px 40px;text-align:center
 .modal .pwarn{margin:0;color:var(--dim);font-size:.88rem}
 .sep{margin:6px 0 0;padding-top:12px;border-top:1px solid var(--line);font:600 .7rem var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
 @media(max-width:640px){.pr{grid-template-columns:1fr}.cgrid{grid-template-columns:1fr}}
+
+/* pie de página */
+footer p{margin:4px 0}
+footer .fmade{font:400 1.2rem var(--display);letter-spacing:.04em;color:var(--ink);margin-bottom:8px}
+footer .fmade b{font-weight:400;color:var(--ok);text-shadow:0 0 18px rgba(93,240,160,.45)}
